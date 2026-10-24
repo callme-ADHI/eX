@@ -13,6 +13,7 @@ export const KEYS = {
   TAB_SNAPSHOT:      'tabs:snapshot',
   SECURITY_CACHE:    'security:reports',   // object keyed by origin
   WEEK_ANALYSIS:     'tabs:weekanalysis',
+  PRIVATE_SITES:     'facelock:privateSites',
 } as const;
 
 const isExtension = typeof chrome !== 'undefined' && !!chrome.storage && !!chrome.storage.local;
@@ -44,7 +45,7 @@ export async function storageSet(key: string, value: unknown): Promise<void> {
     });
   } else {
     localStorage.setItem(key, JSON.stringify(value));
-    window.dispatchEvent(new CustomEvent('ex1:storage', { detail: { key, newValue: value } }));
+    window.dispatchEvent(new CustomEvent('ex:storage', { detail: { key, newValue: value } }));
   }
 }
 
@@ -78,7 +79,7 @@ export async function storageRemove(key: string): Promise<void> {
     });
   } else {
     localStorage.removeItem(key);
-    window.dispatchEvent(new CustomEvent('ex1:storage', { detail: { key, newValue: null } }));
+    window.dispatchEvent(new CustomEvent('ex:storage', { detail: { key, newValue: null } }));
   }
 }
 
@@ -105,8 +106,8 @@ export function storageSubscribe<T>(
         callback(detail.newValue as T, undefined);
       }
     };
-    window.addEventListener('ex1:storage', listener);
-    return () => window.removeEventListener('ex1:storage', listener);
+    window.addEventListener('ex:storage', listener);
+    return () => window.removeEventListener('ex:storage', listener);
   }
 }
 
@@ -134,7 +135,7 @@ export function storageSubscribeAny(
         callback(detail.key, detail.newValue);
       }
     };
-    window.addEventListener('ex1:storage', listener);
-    return () => window.removeEventListener('ex1:storage', listener);
+    window.addEventListener('ex:storage', listener);
+    return () => window.removeEventListener('ex:storage', listener);
   }
 }

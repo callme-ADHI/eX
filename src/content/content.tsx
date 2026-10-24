@@ -130,9 +130,11 @@ async function initLockOverlay(): Promise<void> {
   if (!hostname) return;
 
   try {
-    const res = await chrome.storage.local.get('settings');
+    const res = await chrome.storage.local.get(['settings', 'facelock:privateSites']);
     const settings = (res?.settings || {}) as any;
-    const gatedSites: string[] = settings?.faceLock?.gatedSites || [];
+    const directSites: string[] = (res?.['facelock:privateSites'] as string[]) || [];
+    const settingsSites: string[] = settings?.faceLock?.gatedSites || [];
+    const gatedSites = Array.from(new Set([...directSites, ...settingsSites]));
     if (!gatedSites.includes(hostname)) return;
 
     const unlockMinutes = Number(settings?.faceLock?.unlockMinutes) || 15;

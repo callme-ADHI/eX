@@ -22,14 +22,16 @@ const THEMES: { id: ThemeId; name: string; color: string }[] = [
 
 export default function SettingsPanel() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'tools' | 'dock' | 'appearance' | 'shortcuts' | 'about'>('tools');
+  const [activeTab, setActiveTab] = useState<'tools' | 'dock' | 'appearance' | 'shortcuts' | 'privacy' | 'about'>('tools');
   const [newToolName, setNewToolName] = useState('');
   const [newToolUrl, setNewToolUrl] = useState('');
+  const [newPrivateDomain, setNewPrivateDomain] = useState('');
   const panelRef = useRef<HTMLDivElement>(null);
 
   const [settings, setSettings] = useStorage<AppSettings>(KEYS.SETTINGS, DEFAULT_SETTINGS);
   const [aiTools, setAiTools] = useStorage<AITool[]>(KEYS.AI_TOOLS, DEFAULT_AI_TOOLS);
   const [dockItems, setDockItems] = useStorage<DockItem[]>(KEYS.DOCK_ITEMS, DEFAULT_DOCK_ITEMS);
+  const [privateSites, setPrivateSites] = useStorage<string[]>(KEYS.PRIVATE_SITES, []);
 
   // Close settings panel when clicking outside
   useEffect(() => {
@@ -138,6 +140,12 @@ export default function SettingsPanel() {
                   className={`${styles.tabBtn} ${activeTab === 'shortcuts' ? styles.activeTab : ''}`}
                 >
                   Shortcuts
+                </button>
+                <button
+                  onClick={() => setActiveTab('privacy')}
+                  className={`${styles.tabBtn} ${activeTab === 'privacy' ? styles.activeTab : ''}`}
+                >
+                  🔒 Private Sites
                 </button>
                 <button
                   onClick={() => setActiveTab('about')}
@@ -372,6 +380,81 @@ export default function SettingsPanel() {
                         style={{ opacity: 0.5, cursor: 'not-allowed' }}
                       />
                     </div>
+                  </div>
+                )}
+
+                {activeTab === 'privacy' && (
+                  <div className={styles.tabContent}>
+                    <div className={styles.sectionTitle}>PRIVATE SITES — FACE LOCK</div>
+                    <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '12px', lineHeight: '1.6' }}>
+                      Sites listed here require face recognition (or password fallback) before
+                      they become usable. Add domains without <code>www.</code> or protocol.
+                    </p>
+
+                    {/* Current private sites list */}
+                    <div className={styles.scrollList}>
+                      {(!privateSites || privateSites.length === 0) && (
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', padding: '8px 0', textAlign: 'center' }}>
+                          No private sites configured.
+                        </div>
+                      )}
+                      {(privateSites || []).map((domain) => (
+                        <div key={domain} className={styles.editorRow}>
+                          <span className={styles.editorName} style={{ fontFamily: 'monospace', fontSize: '12px' }}>
+                            {domain}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setPrivateSites((privateSites || []).filter(d => d !== domain))}
+                            className={styles.deleteBtn}
+                            title={`Remove ${domain} from private sites`}
+                          >
+                            REMOVE
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add new private domain */}
+                    <div className={styles.dropdownDivider} style={{ margin: '14px 0 10px' }} />
+                    <div className={styles.sectionTitle}>ADD PRIVATE SITE</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <input
+                        id="ex-settings-private-site-input"
+                        type="text"
+                        placeholder="e.g. example.com"
+                        value={newPrivateDomain}
+                        onChange={e => setNewPrivateDomain(e.target.value.trim().toLowerCase().replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0])}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') {
+                            const d = newPrivateDomain.trim();
+                            if (!d || (privateSites || []).includes(d)) return;
+                            setPrivateSites([...(privateSites || []), d]);
+                            setNewPrivateDomain('');
+                          }
+                        }}
+                        className={styles.textInput}
+                      />
+                      <button
+                        id="ex-settings-private-site-add-btn"
+                        type="button"
+                        onClick={() => {
+                          const d = newPrivateDomain.trim();
+                          if (!d || (privateSites || []).includes(d)) return;
+                          setPrivateSites([...(privateSites || []), d]);
+                          setNewPrivateDomain('');
+                        }}
+                        className={styles.exportBtn}
+                        style={{ marginTop: '4px' }}
+                      >
+                        + ADD SITE
+                      </button>
+                    </div>
+
+                    <div className={styles.dropdownDivider} style={{ margin: '14px 0 10px' }} />
+                    <p style={{ fontSize: '10px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                      ⚠ Changes take effect on the <em>next page load</em> of the affected site.
+                    </p>
                   </div>
                 )}
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { hashPin } from '../../face/pin';
 
 interface SettingsTabProps {
   onClearData: () => void;
@@ -17,13 +18,23 @@ export default function SettingsTab({ onClearData }: SettingsTabProps) {
     apiKeys: { KEY_1: '', KEY_2: '', KEY_3: '' },
   });
   const [newGatedSite, setNewGatedSite] = useState('');
+  const [masterPassword, setMasterPassword] = useState('');
+  const [pwStatus, setPwStatus] = useState('');
   const [showAiPreview, setShowAiPreview] = useState(false);
   const [savedMsg, setSavedMsg] = useState('');
 
   useEffect(() => {
     chrome.runtime.sendMessage({ type: 'GET_SETTINGS' }, (res) => {
       if (res?.ok && res.data) {
-        setSettings(res.data);
+        chrome.storage.local.get('facelock:privateSites', (storageRes) => {
+          const directSites = (storageRes['facelock:privateSites'] as string[]) || [];
+          const currentSites = res.data.faceLock?.gatedSites || [];
+          const merged = Array.from(new Set([...directSites, ...currentSites]));
+          setSettings({
+            ...res.data,
+            faceLock: { ...(res.data.faceLock || {}), gatedSites: merged },
+          });
+        });
       }
     });
   }, []);
@@ -44,6 +55,7 @@ export default function SettingsTab({ onClearData }: SettingsTabProps) {
     const currentList: string[] = settings.faceLock?.gatedSites || [];
     if (!currentList.includes(clean)) {
       const updated = [...currentList, clean];
+      chrome.storage.local.set({ 'facelock:privateSites': updated });
       savePatch({ faceLock: { ...settings.faceLock, gatedSites: updated } });
     }
     setNewGatedSite('');
@@ -52,7 +64,25 @@ export default function SettingsTab({ onClearData }: SettingsTabProps) {
   const handleRemoveSite = (site: string) => {
     const currentList: string[] = settings.faceLock?.gatedSites || [];
     const updated = currentList.filter((s) => s !== site);
+    chrome.storage.local.set({ 'facelock:privateSites': updated });
     savePatch({ faceLock: { ...settings.faceLock, gatedSites: updated } });
+  };
+
+  const handleSetMasterPassword = async () => {
+    if (!masterPassword || masterPassword.length < 4) {
+      setPwStatus('Password must be at least 4 characters');
+      return;
+    }
+    try {
+      const { pinHash, pinSalt } = await hashPin(masterPassword);
+      await chrome.storage.local.set({ 'facelock:pin': { pinHash, pinSalt } });
+      savePatch({ faceLock: { ...settings.faceLock, pinHash, pinSalt } });
+      setMasterPassword('');
+      setPwStatus('✓ Master password updated');
+      setTimeout(() => setPwStatus(''), 2500);
+    } catch (e: any) {
+      setPwStatus('Failed: ' + e.message);
+    }
   };
 
   return (
@@ -176,6 +206,40 @@ export default function SettingsTab({ onClearData }: SettingsTabProps) {
               value={settings.faceLock?.threshold ?? 0.5}
               onChange={(e) => savePatch({ faceLock: { ...settings.faceLock, threshold: parseFloat(e.target.value) } })}
             />
+          </div>
+
+          {/* Master Password Management */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary, #aaa)' }}>Master Fallback Password:</span>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <input
+                type="password"
+                placeholder="Set new master password..."
+                value={masterPassword}
+                onChange={(e) => setMasterPassword(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSetMasterPassword()}
+                style={{
+                  flex: 1, padding: '6px 10px', background: 'rgba(0,0,0,0.3)',
+                  border: '1px solid var(--panel-border, rgba(255,255,255,0.12))', borderRadius: '4px',
+                  color: '#fff', fontSize: '11px',
+                }}
+              />
+              <button
+                onClick={handleSetMasterPassword}
+                style={{
+                  padding: '6px 10px', background: 'rgba(0,255,210,0.15)',
+                  border: '1px solid rgba(0,255,210,0.4)', borderRadius: '4px',
+                  color: '#00ffd2', fontSize: '11px', fontWeight: 600, cursor: 'pointer',
+                }}
+              >
+                Set
+              </button>
+            </div>
+            {pwStatus && (
+              <span style={{ fontSize: '10px', color: pwStatus.startsWith('✓') ? '#00ffd2' : '#ff3b30' }}>
+                {pwStatus}
+              </span>
+            )}
           </div>
         </div>
       </div>

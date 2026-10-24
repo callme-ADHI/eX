@@ -7,9 +7,9 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 /* ─── Reset ──────────────────────────────────────────────────────────────────── */
-.ex2-lock-overlay *,
-.ex2-lock-overlay *::before,
-.ex2-lock-overlay *::after {
+.ex-lock-overlay *,
+.ex-lock-overlay *::before,
+.ex-lock-overlay *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -17,7 +17,7 @@
 }
 
 /* ─── Full-viewport overlay ──────────────────────────────────────────────────── */
-.ex2-lock-overlay {
+.ex-lock-overlay {
   position: fixed;
   inset: 0;
   z-index: 2147483647;
@@ -27,17 +27,17 @@
 }
 
 /* ─── Backdrop ───────────────────────────────────────────────────────────────── */
-.ex2-lock-backdrop {
+.ex-lock-backdrop {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.88);
   backdrop-filter: blur(24px) saturate(0.3);
   -webkit-backdrop-filter: blur(24px) saturate(0.3);
-  animation: ex2-fade-in 0.35s ease forwards;
+  animation: ex-fade-in 0.35s ease forwards;
 }
 
 /* ─── Main card ──────────────────────────────────────────────────────────────── */
-.ex2-lock-card {
+.ex-lock-card {
   position: relative;
   z-index: 1;
   width: 340px;
@@ -53,18 +53,18 @@
     0 0 0 1px rgba(255, 255, 255, 0.04),
     0 24px 64px rgba(0, 0, 0, 0.7),
     0 0 80px rgba(99, 102, 241, 0.08);
-  animation: ex2-card-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: ex-card-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 /* ─── Header ─────────────────────────────────────────────────────────────────── */
-.ex2-lock-header {
+.ex-lock-header {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
 }
 
-.ex2-lock-icon {
+.ex-lock-icon {
   width: 44px;
   height: 44px;
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.15));
@@ -77,19 +77,19 @@
   margin-bottom: 4px;
 }
 
-.ex2-lock-icon svg {
+.ex-lock-icon svg {
   width: 22px;
   height: 22px;
 }
 
-.ex2-lock-title {
+.ex-lock-title {
   font-size: 16px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.92);
   letter-spacing: 0.01em;
 }
 
-.ex2-lock-domain {
+.ex-lock-domain {
   font-size: 11px;
   font-weight: 500;
   color: rgba(99, 102, 241, 0.85);
@@ -102,7 +102,7 @@
 }
 
 /* ─── Camera view ────────────────────────────────────────────────────────────── */
-.ex2-lock-camera-wrap {
+.ex-lock-camera-wrap {
   position: relative;
   width: 220px;
   height: 165px;
@@ -112,7 +112,7 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.ex2-lock-video {
+.ex-lock-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -121,32 +121,32 @@
 }
 
 /* Corner frame decorators — biometric UI aesthetic */
-.ex2-lock-corner {
+.ex-lock-corner {
   position: absolute;
   width: 16px;
   height: 16px;
   border-color: rgba(99, 102, 241, 0.75);
   border-style: solid;
 }
-.ex2-lock-corner--tl { top: 6px;    left: 6px;    border-width: 2px 0 0 2px; border-radius: 3px 0 0 0; }
-.ex2-lock-corner--tr { top: 6px;    right: 6px;   border-width: 2px 2px 0 0; border-radius: 0 3px 0 0; }
-.ex2-lock-corner--bl { bottom: 6px; left: 6px;    border-width: 0 0 2px 2px; border-radius: 0 0 0 3px; }
-.ex2-lock-corner--br { bottom: 6px; right: 6px;   border-width: 0 2px 2px 0; border-radius: 0 0 3px 0; }
+.ex-lock-corner--tl { top: 6px;    left: 6px;    border-width: 2px 0 0 2px; border-radius: 3px 0 0 0; }
+.ex-lock-corner--tr { top: 6px;    right: 6px;   border-width: 2px 2px 0 0; border-radius: 0 3px 0 0; }
+.ex-lock-corner--bl { bottom: 6px; left: 6px;    border-width: 0 0 2px 2px; border-radius: 0 0 0 3px; }
+.ex-lock-corner--br { bottom: 6px; right: 6px;   border-width: 0 2px 2px 0; border-radius: 0 0 3px 0; }
 
 /* Scan line */
-.ex2-lock-scanline {
+.ex-lock-scanline {
   position: absolute;
   left: 0;
   right: 0;
   height: 2px;
   background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.8), transparent);
-  animation: ex2-scan 1.8s ease-in-out infinite;
+  animation: ex-scan 1.8s ease-in-out infinite;
   border-radius: 1px;
   box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
 }
 
 /* Face guide oval — shows user where to position their face */
-.ex2-lock-face-guide {
+.ex-lock-face-guide {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -159,7 +159,7 @@
 }
 
 /* Debug similarity badge (shown during testing) */
-.ex2-lock-sim-debug {
+.ex-lock-sim-debug {
   position: absolute;
   bottom: 6px;
   right: 8px;
@@ -173,7 +173,7 @@
 }
 
 /* ─── Status line ────────────────────────────────────────────────────────────── */
-.ex2-lock-status {
+.ex-lock-status {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -184,40 +184,40 @@
   min-height: 20px;
 }
 
-.ex2-lock-status--verifying { color: rgba(165, 180, 252, 0.85); }
-.ex2-lock-status--error     { color: rgba(252, 165, 165, 0.85); }
-.ex2-lock-status--password  { color: rgba(255, 255, 255, 0.5); }
+.ex-lock-status--verifying { color: rgba(165, 180, 252, 0.85); }
+.ex-lock-status--error     { color: rgba(252, 165, 165, 0.85); }
+.ex-lock-status--password  { color: rgba(255, 255, 255, 0.5); }
 
 /* Spinner (loading state) */
-.ex2-lock-spinner {
+.ex-lock-spinner {
   width: 14px;
   height: 14px;
   border: 2px solid rgba(99, 102, 241, 0.2);
   border-top-color: rgba(99, 102, 241, 0.9);
   border-radius: 50%;
   flex-shrink: 0;
-  animation: ex2-spin 0.7s linear infinite;
+  animation: ex-spin 0.7s linear infinite;
 }
 
 /* Pulse dot (verifying state) */
-.ex2-lock-pulse-dot {
+.ex-lock-pulse-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: rgba(99, 102, 241, 0.9);
   flex-shrink: 0;
-  animation: ex2-pulse 1.2s ease-in-out infinite;
+  animation: ex-pulse 1.2s ease-in-out infinite;
 }
 
 /* ─── Password form ───────────────────────────────────────────────────────────── */
-.ex2-lock-pw-form {
+.ex-lock-pw-form {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.ex2-lock-pw-input {
+.ex-lock-pw-input {
   width: 100%;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -230,20 +230,20 @@
   letter-spacing: 0.08em;
 }
 
-.ex2-lock-pw-input:focus {
+.ex-lock-pw-input:focus {
   border-color: rgba(99, 102, 241, 0.6);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
 }
 
-.ex2-lock-pw-input::placeholder { color: rgba(255, 255, 255, 0.25); }
+.ex-lock-pw-input::placeholder { color: rgba(255, 255, 255, 0.25); }
 
-.ex2-lock-pw-error {
+.ex-lock-pw-error {
   font-size: 11px;
   color: rgba(252, 165, 165, 0.9);
   text-align: center;
 }
 
-.ex2-lock-pw-btn {
+.ex-lock-pw-btn {
   width: 100%;
   padding: 11px;
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(139, 92, 246, 0.9));
@@ -257,10 +257,10 @@
   transition: opacity 0.15s, transform 0.12s;
 }
 
-.ex2-lock-pw-btn:hover  { opacity: 0.88; }
-.ex2-lock-pw-btn:active { transform: scale(0.98); }
+.ex-lock-pw-btn:hover  { opacity: 0.88; }
+.ex-lock-pw-btn:active { transform: scale(0.98); }
 
-.ex2-lock-try-face-btn {
+.ex-lock-try-face-btn {
   background: none;
   border: none;
   color: rgba(99, 102, 241, 0.7);
@@ -272,10 +272,10 @@
   padding: 2px;
   transition: color 0.15s;
 }
-.ex2-lock-try-face-btn:hover { color: rgba(165, 180, 252, 0.9); }
+.ex-lock-try-face-btn:hover { color: rgba(165, 180, 252, 0.9); }
 
 /* ─── Footer ─────────────────────────────────────────────────────────────────── */
-.ex2-lock-footer {
+.ex-lock-footer {
   font-size: 10px;
   color: rgba(255, 255, 255, 0.18);
   letter-spacing: 0.06em;
@@ -283,28 +283,28 @@
 }
 
 /* ─── Keyframes ──────────────────────────────────────────────────────────────── */
-@keyframes ex2-fade-in {
+@keyframes ex-fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-@keyframes ex2-card-in {
+@keyframes ex-card-in {
   from { opacity: 0; transform: scale(0.92) translateY(12px); }
   to   { opacity: 1; transform: scale(1)    translateY(0);    }
 }
 
-@keyframes ex2-scan {
+@keyframes ex-scan {
   0%   { top: 0;    opacity: 0; }
   10%  { opacity: 1; }
   90%  { opacity: 1; }
   100% { top: 100%; opacity: 0; }
 }
 
-@keyframes ex2-spin {
+@keyframes ex-spin {
   to { transform: rotate(360deg); }
 }
 
-@keyframes ex2-pulse {
+@keyframes ex-pulse {
   0%, 100% { opacity: 1;   transform: scale(1);    }
   50%       { opacity: 0.4; transform: scale(0.75); }
 }
