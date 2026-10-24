@@ -1,0 +1,50 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-disabled); }
+
+/* ─── Focus ring ────────────────────────────────────────────────────────────── */
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+button, input, select, textarea { font-family: inherit; }
+
+/* ─── Glass card ────────────────────────────────────────────────────────────── */
+.glass-card {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+/* ─── Monospace value ───────────────────────────────────────────────────────── */
+.mono { font-family: var(--font-mono); }
+
+/* ─── Risk badges ───────────────────────────────────────────────────────────── */
+.badge-safe    { color: #22c55e; background: rgba(34,197,94,0.1); }
+.badge-medium  { color: #f59e0b; background: rgba(245,158,11,0.1); }
+.badge-high    { color: #ef4444; background: rgba(239,68,68,0.1); }
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: var(--radius-pill);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+}

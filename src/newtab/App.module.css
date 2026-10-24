@@ -1,0 +1,84 @@
+/* ─── Root fullscreen canvas ──────────────────────────────────────────────── */
+.root {
+  width: 100vw;
+  height: 100vh;
+  background: #000000;
+  position: relative;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* Subtle radial glow from left-center */
+.root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 55% at 22% 42%, rgba(255,255,255,0.03) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── LEFT COLUMN ─────────────────────────────────────────────────────────── */
+/* Clock: absolute, lowered closer to center vertically (1.2cm above center) */
+.clockArea {
+  position: absolute;
+  left: calc(25% - 1.5cm);
+  top: calc(50% - 1.2cm);
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+/* Focus strip: placed lower down (2.4cm below center) to avoid touching the clock */
+.focusArea {
+  position: absolute;
+  left: calc(25% - 1.5cm - 200px);   /* left-align with clock */
+  top: calc(50% + 2.4cm);
+  width: 400px;
+  z-index: 10;
+}
+
+/* ─── RIGHT COLUMN ────────────────────────────────────────────────────────── */
+/* Search bar: top-right, spans 58vw (more than 50% of the screen) */
+.searchArea {
+  position: absolute;
+  right: 48px;
+  top: 44px;
+  width: 58vw;
+  z-index: 20;
+}
+
+/* Productivity + Tab cards: side by side under search bar */
+.subSearchRow {
+  position: absolute;
+  right: 48px;
+  top: 108px;
+  width: 58vw;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  z-index: 10;
+  align-items: flex-start;
+}
+
+.subSearchRow > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ─── Settings gear bottom-right ─────────────────────────────────────────── */
+.settingsArea {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  z-index: 800;
+}
+
+/* ─── Aevoarx brand logo — top-LEFT corner ──────────────────────────────── */
+.logoArea {
+  position: fixed;
+  top: 18px;
+  left: 22px;
+  z-index: 800;
+  display: flex;
+  align-items: center;
+}
+
