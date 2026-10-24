@@ -15,6 +15,7 @@ import FindingsTab from './FindingsTab';
 import SettingsTab from './SettingsTab';
 import { extractPageFeatures } from '../page-features';
 import { scanInboxRows } from '../gmail/gmail-scanner';
+import { isMailPage } from '../../shared/mail-pages';
 import SnipOverlay, { SnipResult } from './SnipOverlay';
 import styles from './SidePanel.module.css';
 import type { AttachmentChipData } from './chat/Composer';
@@ -107,6 +108,7 @@ export default function SidePanel({
     (['localhost', '127.0.0.1', '::1', '[::1]'].includes(window.location.hostname) ||
      /^(\d{1,3}\.){3}\d{1,3}$/.test(window.location.hostname))
   );
+  const isWebmail = typeof window !== 'undefined' && isMailPage(window.location.href);
   const isGmail = typeof window !== 'undefined' && window.location.hostname === 'mail.google.com';
 
   const refreshCyberState = useCallback(() => {
@@ -116,12 +118,12 @@ export default function SidePanel({
     chrome.runtime.sendMessage({ type: 'GET_FINDINGS' }, (res) => {
       if (res?.ok && res.data) setFindings(res.data);
     });
-    if (isGmail) {
+    if (isWebmail) {
       chrome.runtime.sendMessage({ type: 'GET_MAIL_SUMMARY' }, (res) => {
         if (res?.ok && res.data) setMailSummary(res.data);
       });
     }
-  }, [isGmail]);
+  }, [isWebmail]);
 
   useEffect(() => {
     if (open) {
@@ -647,6 +649,7 @@ export default function SidePanel({
               activeTab={activeTab}
               onTabChange={setActiveTab}
               onClose={closePanel}
+              isMailPage={isWebmail}
             />
 
             {/* ── Tab content ── */}

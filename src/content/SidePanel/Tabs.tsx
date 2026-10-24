@@ -6,18 +6,25 @@ interface TabsProps {
   activeTab: TabId;
   onTabChange: (tab: TabId) => void;
   onClose: () => void;
+  isMailPage?: boolean;
 }
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'site', label: 'Site' },
-  { id: 'mail', label: 'Mail' },
-  { id: 'findings', label: 'Findings' },
-  { id: 'chat', label: 'Chat' },
-  { id: 'settings', label: 'Settings' },
-];
+export default function Tabs({ activeTab, onTabChange, onClose, isMailPage = false }: TabsProps) {
+  const visibleTabs = [
+    { id: 'overview' as TabId, label: 'Overview' },
+    { id: 'site' as TabId, label: 'Site' },
+    ...(isMailPage ? [{ id: 'mail' as TabId, label: 'Mail' }] : []),
+    { id: 'findings' as TabId, label: 'Findings' },
+    { id: 'chat' as TabId, label: 'Chat' },
+    { id: 'settings' as TabId, label: 'Settings' },
+  ];
 
-export default function Tabs({ activeTab, onTabChange, onClose }: TabsProps) {
+  // Auto switch if currently on mail tab but leaving mail page
+  React.useEffect(() => {
+    if (activeTab === 'mail' && !isMailPage) {
+      onTabChange('overview');
+    }
+  }, [activeTab, isMailPage, onTabChange]);
   const tabStyle = (id: TabId): React.CSSProperties => ({
     padding: '7px 11px',
     background: activeTab === id ? 'var(--tab-active-bg, rgba(36,82,255,0.18))' : 'transparent',
@@ -47,7 +54,7 @@ export default function Tabs({ activeTab, onTabChange, onClose }: TabsProps) {
       scrollbarWidth: 'none',
     }}>
       <div style={{ display: 'flex', flex: 1, overflowX: 'auto', scrollbarWidth: 'none' }}>
-        {TABS.map((t) => (
+        {visibleTabs.map((t) => (
           <button
             key={t.id}
             style={tabStyle(t.id)}
