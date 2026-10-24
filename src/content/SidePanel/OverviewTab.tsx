@@ -142,132 +142,168 @@ export default function OverviewTab({ siteVerdict, onTrustSite, onRescan, scanni
   if (facts.asn) osintChips.push(facts.asn);
 
   return (
-    <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: 12, padding: '14px 16px', color: '#f4f4f5', fontSize: 12, scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.15) transparent' }}>
-      {/* 1. Executive Site Identity Banner */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(255, 255, 255, 0.025)', borderRadius: 12, border: '1px solid rgba(255, 255, 255, 0.07)', boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: isHttps ? 'rgba(0, 255, 210, 0.1)' : 'rgba(239, 68, 68, 0.1)', border: `1px solid ${isHttps ? 'rgba(0, 255, 210, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}>
-            {isHttps ? '🛡️' : '⚠️'}
+    <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: 12, padding: '14px 16px', color: '#e2e8f0', fontSize: 12, fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.12) transparent' }}>
+      {/* 1. Formal Executive Site Identity Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 14px', background: '#0d1117', borderRadius: 8, border: '1px solid #21262d' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+          <div style={{ width: 30, height: 30, borderRadius: 6, background: isHttps ? 'rgba(56, 189, 248, 0.08)' : 'rgba(239, 68, 68, 0.08)', border: `1px solid ${isHttps ? '#1e3a5f' : '#491b1b'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={isHttps ? '#38bdf8' : '#ef4444'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {isHttps ? (
+                <>
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </>
+              ) : (
+                <>
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </>
+              )}
+            </svg>
           </div>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 13, color: '#ffffff', letterSpacing: '-0.2px' }}>{currentHost}</div>
-            <div style={{ fontSize: 10, color: isHttps ? '#00ffd2' : '#f59e0b', display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: isHttps ? '#00ffd2' : '#f59e0b' }} />
-              {isHttps ? 'HTTPS (Encrypted Connection)' : 'Unencrypted HTTP Connection'}
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 600, fontSize: 13, color: '#f8fafc', letterSpacing: '-0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {currentHost}
+            </div>
+            <div style={{ fontSize: 10, color: isHttps ? '#8b949e' : '#f87171', display: 'flex', alignItems: 'center', gap: 5, marginTop: 1 }}>
+              <span style={{ width: 4.5, height: 4.5, borderRadius: '50%', background: isHttps ? '#38bdf8' : '#ef4444', display: 'inline-block' }} />
+              {isHttps ? 'TLS Encrypted · Port 443' : 'Unencrypted Cleartext HTTP'}
             </div>
           </div>
         </div>
         {onTrustSite && (
-          <button onClick={() => onTrustSite(currentHost)} style={{ padding: '5px 11px', fontSize: 10, background: 'rgba(0, 255, 210, 0.08)', color: '#00ffd2', border: '1px solid rgba(0, 255, 210, 0.25)', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}>
+          <button onClick={() => onTrustSite(currentHost)} style={{ padding: '4px 11px', fontSize: 10, background: 'transparent', color: '#8b949e', border: '1px solid #30363d', borderRadius: 5, cursor: 'pointer', fontWeight: 500, letterSpacing: '0.02em', transition: 'all 0.15s ease' }}>
             Trust Site
           </button>
         )}
       </div>
 
-      {/* 2. Cyber Score Hero Telemetry Card */}
-      <div style={{ background: 'linear-gradient(180deg, rgba(20, 22, 30, 0.8) 0%, rgba(12, 14, 20, 0.95) 100%)', borderRadius: 14, border: '1px solid rgba(255, 255, 255, 0.08)', padding: '16px 14px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.35)' }}>
-        <div style={{ position: 'relative', width: 110, height: 110, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <svg width="110" height="110" style={{ transform: 'rotate(-90deg)' }}>
-            <circle cx="55" cy="55" r="46" stroke="rgba(255,255,255,0.06)" strokeWidth="8" fill="transparent" />
-            <circle cx="55" cy="55" r="46" stroke={gradeColor} strokeWidth="8" fill="transparent" strokeDasharray={289} strokeDashoffset={289 - (289 * Math.min(100, ex.exScore)) / 100} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.8s ease' }} />
-          </svg>
-          <div style={{ position: 'absolute', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <span style={{ fontSize: 30, fontWeight: 800, color: '#ffffff', lineHeight: 1 }}>{ex.exScore}</span>
-            <span style={{ fontSize: 10, fontWeight: 700, color: gradeColor, marginTop: 3 }}>GRADE {ex.grade}</span>
+      {/* 2. Precision Executive Telemetry Gauge & Score Matrix */}
+      <div style={{ background: '#0d1117', borderRadius: 8, border: '1px solid #21262d', padding: '14px 14px', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ position: 'relative', width: 66, height: 66, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="66" height="66" style={{ transform: 'rotate(-90deg)' }}>
+                <circle cx="33" cy="33" r="27" stroke="#161b22" strokeWidth="5.5" fill="transparent" />
+                <circle cx="33" cy="33" r="27" stroke={gradeColor} strokeWidth="5.5" fill="transparent" strokeDasharray={169.6} strokeDashoffset={169.6 - (169.6 * Math.min(100, ex.exScore)) / 100} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
+              </svg>
+              <div style={{ position: 'absolute', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: '#f8fafc', lineHeight: 1, letterSpacing: '-0.02em' }}>{ex.exScore}</span>
+                <span style={{ fontSize: 8.5, fontWeight: 600, color: '#6e7681', marginTop: 1 }}>/ 100</span>
+              </div>
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.05em', padding: '2px 5px', borderRadius: 3, background: 'rgba(255,255,255,0.04)', color: gradeColor, border: `1px solid ${gradeColor}40` }}>
+                  TIER {ex.grade}
+                </span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#f8fafc' }}>
+                  {ex.grade === 'A+' || ex.grade === 'A' ? 'Enterprise Verified' : ex.grade === 'B' ? 'Standard Trust' : ex.grade === 'C' ? 'Elevated Risk' : 'High Threat'}
+                </span>
+              </div>
+              <div style={{ fontSize: 10, color: '#8b949e', marginTop: 3 }}>
+                {ex.confidenceText || 'Evaluated across 61 integrity metrics'}
+              </div>
+            </div>
           </div>
+          <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 3, background: '#161b22', color: '#58a6ff', border: '1px solid #30363d', letterSpacing: '0.04em' }}>
+            TELEMETRY
+          </span>
         </div>
 
-        {/* 3 Telemetry Gauges */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, width: '100%', marginTop: 14 }}>
+        {/* 3 Metric Columns */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, width: '100%', marginTop: 12 }}>
           {telemetryGauges.map((g, idx) => (
-            <div key={idx} style={{ textAlign: 'center', background: 'rgba(255,255,255,0.025)', padding: '7px 4px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ fontSize: 10, color: '#a1a1aa', textTransform: 'uppercase' }}>{g.label}</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: g.score >= 80 ? '#00ffd2' : '#f59e0b', marginTop: 2 }}>{g.score}</div>
-              <div style={{ fontSize: 9, color: '#71717a' }}>{g.sub}</div>
+            <div key={idx} style={{ background: '#161b22', padding: '7px 8px', borderRadius: 5, border: '1px solid #21262d' }}>
+              <div style={{ fontSize: 9, color: '#8b949e', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{g.label}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#f0f6fc', marginTop: 2, letterSpacing: '-0.02em' }}>
+                {g.score}<span style={{ fontSize: 9.5, fontWeight: 400, color: '#6e7681', marginLeft: 1 }}>%</span>
+              </div>
+              <div style={{ fontSize: 9, color: '#8b949e', marginTop: 1 }}>{g.sub}</div>
             </div>
           ))}
         </div>
 
-        <div style={{ marginTop: 10, textAlign: 'center' }}>
-          <div style={{ fontSize: 10, color: '#a1a1aa' }}>{ex.confidenceText || 'Verified across 54 of 61 parameters'}</div>
-          <div style={{ fontSize: 10, color: '#818cf8', marginTop: 2, fontWeight: 600 }}>● {assessment?.stageText || 'Multi-Engine Live Assessment Active'}</div>
-        </div>
-
         {/* Action Controls */}
-        <div style={{ display: 'flex', gap: 8, marginTop: 12, width: '100%' }}>
-          <button onClick={handleReanalyze} disabled={isAnalyzing || scanningActive} style={{ flex: 1, padding: '8px 0', background: isAnalyzing ? 'rgba(0,255,210,0.1)' : 'rgba(255,255,255,0.06)', border: `1px solid ${isAnalyzing ? '#00ffd2' : 'rgba(255,255,255,0.12)'}`, borderRadius: 7, color: isAnalyzing ? '#00ffd2' : '#ffffff', fontSize: 11, fontWeight: 600, cursor: isAnalyzing ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+        <div style={{ display: 'flex', gap: 6, marginTop: 12, width: '100%' }}>
+          <button onClick={handleReanalyze} disabled={isAnalyzing || scanningActive} style={{ flex: 1, padding: '7px 0', background: isAnalyzing ? '#21262d' : '#161b22', border: '1px solid #30363d', borderRadius: 5, color: isAnalyzing ? '#58a6ff' : '#c9d1d9', fontSize: 10.5, fontWeight: 600, cursor: isAnalyzing ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
             <span style={{ display: 'inline-block', transform: isAnalyzing ? 'rotate(360deg)' : 'none', transition: 'transform 0.6s linear' }}>↻</span>
-            <span>{isAnalyzing ? 'Analyzing…' : 'Re-analyze'}</span>
+            <span>{isAnalyzing ? 'Analyzing Target…' : 'Re-evaluate Target'}</span>
           </button>
-          <button onClick={handleDeepCheck} disabled={isDeepChecking} style={{ flex: 1, padding: '8px 0', background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)', border: '1px solid rgba(99,102,241,0.5)', borderRadius: 7, color: '#ffffff', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-            <span>⚡</span>
-            <span>{isDeepChecking ? 'Deep checking…' : 'Deep Check'}</span>
+          <button onClick={handleDeepCheck} disabled={isDeepChecking} style={{ flex: 1, padding: '7px 0', background: isDeepChecking ? '#1f2937' : '#1f242c', border: '1px solid #3b4351', borderRadius: 5, color: '#f0f6fc', fontSize: 10.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+            <span>{isDeepChecking ? 'Checking Endpoints…' : 'Deep Verification'}</span>
           </button>
         </div>
       </div>
 
-      {/* 3. AI Security Executive Synthesis */}
-      <div style={{ background: 'rgba(255, 255, 255, 0.025)', borderRadius: 12, border: '1px solid rgba(255, 255, 255, 0.07)', padding: '12px 14px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 11, color: '#f4f4f5', textTransform: 'uppercase' }}>
-            <span style={{ color: '#818cf8' }}>⚡</span>
-            <span>{assessment?.isAiGenerated ? 'AI Security Assessment' : 'Local Summary'}</span>
-          </div>
-          <span style={{ fontSize: 9, background: 'rgba(99,102,241,0.18)', color: '#c7d2fe', padding: '2px 7px', borderRadius: 4, fontWeight: 600, border: '1px solid rgba(99,102,241,0.3)' }}>
-            {assessment?.isAiGenerated ? 'NVIDIA NIM' : 'Rule Engine'}
+      {/* 3. Security Synthesis */}
+      <div style={{ background: '#0d1117', borderRadius: 8, border: '1px solid #21262d', padding: '11px 14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <span style={{ fontWeight: 600, fontSize: 10, color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.05em' }}>SECURITY SYNTHESIS</span>
+          <span style={{ fontSize: 9, background: '#161b22', color: '#8b949e', padding: '1px 5px', borderRadius: 3, fontWeight: 600, border: '1px solid #21262d' }}>
+            {assessment?.isAiGenerated ? 'NEURAL ENGINE' : 'HEURISTIC ENGINE'}
           </span>
         </div>
-        <p style={{ margin: 0, fontSize: 11, lineHeight: 1.55, color: '#d4d4d8' }}>
+        <p style={{ margin: 0, fontSize: 11, lineHeight: 1.5, color: '#c9d1d9' }}>
           {assessment?.summaryText || (ex.isLimitedData ? `Limited data available on ${currentHost}; only ${Math.round((ex.confidence || 0) * 61)} of 61 checks evaluated.` : `Real-time security analysis complete for ${currentHost}.`)}
         </p>
       </div>
 
-      {/* 4. Top Key Findings */}
+      {/* 4. Top Key Observations */}
       {ex.keyFindings && ex.keyFindings.length > 0 && (
-        <div style={{ background: 'rgba(255, 255, 255, 0.025)', borderRadius: 12, border: '1px solid rgba(255, 255, 255, 0.07)', padding: '12px 14px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#a1a1aa', marginBottom: 8, textTransform: 'uppercase' }}>Top Observations ({ex.keyFindings.length})</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-            {ex.keyFindings.slice(0, 5).map((f: any, i: number) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, padding: '7px 9px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: 7, border: '1px solid rgba(255, 255, 255, 0.04)' }}>
-                <div style={{ display: 'flex', gap: 7 }}>
-                  <span style={{ fontSize: 12 }}>{f.type === 'positive' ? '✓' : f.type === 'critical' ? '🛑' : '⚠️'}</span>
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: '#f4f4f5' }}>{f.title}</div>
-                    <div style={{ fontSize: 10, color: '#888890', marginTop: 1 }}>{f.details}</div>
+        <div style={{ background: '#0d1117', borderRadius: 8, border: '1px solid #21262d', padding: '11px 14px' }}>
+          <div style={{ fontSize: 10, fontWeight: 600, color: '#8b949e', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            KEY FINDINGS ({ex.keyFindings.length})
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+            {ex.keyFindings.slice(0, 5).map((f: any, i: number) => {
+              const isPos = f.type === 'positive', isCrit = f.type === 'critical';
+              const indicatorColor = isPos ? '#38bdf8' : isCrit ? '#f87171' : '#fbbf24';
+              return (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, padding: '7px 9px', background: '#161b22', borderRadius: 5, border: '1px solid #21262d' }}>
+                  <div style={{ display: 'flex', gap: 7, minWidth: 0 }}>
+                    <div style={{ width: 5, height: 5, borderRadius: '50%', background: indicatorColor, marginTop: 4, flexShrink: 0 }} />
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: '#f0f6fc' }}>{f.title}</div>
+                      <div style={{ fontSize: 9.5, color: '#8b949e', marginTop: 1, lineHeight: 1.35 }}>{f.details}</div>
+                    </div>
                   </div>
+                  <span style={{ fontSize: 9, color: indicatorColor, fontWeight: 600, whiteSpace: 'nowrap', padding: '1px 5px', borderRadius: 3, background: 'rgba(255,255,255,0.03)', border: `1px solid ${indicatorColor}30` }}>
+                    {isPos ? 'Validated' : `-${Math.round((f.weight || 1) * 6)} pts`}
+                  </span>
                 </div>
-                <span style={{ fontSize: 9, color: f.type === 'positive' ? '#00ffd2' : '#f59e0b', fontWeight: 700, whiteSpace: 'nowrap', padding: '2px 5px', borderRadius: 4, background: f.type === 'positive' ? 'rgba(0,255,210,0.1)' : 'rgba(245,158,11,0.1)' }}>
-                  {f.type === 'positive' ? '+Verified' : `-${Math.round((f.weight || 1) * 6)} pts`}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* 5. Click & Redirect Guard */}
-      <div style={{ background: 'rgba(255, 255, 255, 0.025)', borderRadius: 12, border: '1px solid rgba(255, 255, 255, 0.07)', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      {/* 5. Click & Redirect Integrity */}
+      <div style={{ background: '#0d1117', borderRadius: 8, border: '1px solid #21262d', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontWeight: 600, fontSize: 11, color: '#ffffff' }}>Click & Redirect Guard</div>
-          <div style={{ fontSize: 10, color: '#71717a', marginTop: 2 }}>
-            Clicks: {clickStats.physicalClicks || 0} · Intercepted: {clickStats.popupsBlocked || 0} · Overlays: {clickStats.overlaysDetected || 0}
+          <div style={{ fontWeight: 600, fontSize: 11, color: '#f0f6fc' }}>Clickjacking & Redirection Shield</div>
+          <div style={{ fontSize: 9.5, color: '#8b949e', marginTop: 2 }}>
+            Clicks: {clickStats.physicalClicks || 0} · Blocked: {clickStats.popupsBlocked || 0} · Traps: {clickStats.overlaysDetected || 0}
           </div>
         </div>
-        <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 5, background: hasHijack ? 'rgba(239,68,68,0.15)' : 'rgba(0,255,210,0.12)', color: hasHijack ? '#ef4444' : '#00ffd2', border: `1px solid ${hasHijack ? 'rgba(239,68,68,0.3)' : 'rgba(0,255,210,0.3)'}` }}>
-          {hasHijack ? 'Hijack Intercepted' : 'Shield Active'}
+        <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 3, background: hasHijack ? 'rgba(239, 68, 68, 0.1)' : 'rgba(56, 189, 248, 0.1)', color: hasHijack ? '#f87171' : '#38bdf8', border: `1px solid ${hasHijack ? '#ef444450' : '#38bdf840'}`, letterSpacing: '0.04em' }}>
+          {hasHijack ? 'THREAT DETECTED' : 'ARMED & ACTIVE'}
         </span>
       </div>
 
-      {/* 6. OSINT Telemetry Chips */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-        {osintChips.map((chip, idx) => (
-          <span key={idx} style={{ padding: '3px 8px', fontSize: 10, borderRadius: 6, background: 'rgba(255,255,255,0.04)', color: '#d4d4d8', border: '1px solid rgba(255,255,255,0.07)' }}>
-            {chip}
-          </span>
-        ))}
-      </div>
+      {/* 6. OSINT Telemetry Ledger */}
+      {osintChips.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+          {osintChips.map((chip, idx) => (
+            <span key={idx} style={{ padding: '2px 7px', fontSize: 9.5, borderRadius: 4, background: '#161b22', color: '#8b949e', border: '1px solid #21262d', fontFamily: 'SFMono-Regular, Consolas, Menlo, monospace' }}>
+              {chip}
+            </span>
+          ))}
+        </div>
+      )}
 
-      {/* 7. Live Permissions & Access Monitor */}
+      {/* 7. Live Permissions & Capability Ledger */}
       <PermissionMonitor permissions={permissions} cameraActive={cameraActive} micActive={micActive} hostname={currentHost} />
     </div>
   );
