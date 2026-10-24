@@ -29,6 +29,8 @@ import { captureVisibleTab, handleOcrWarm, handleOcrRun } from './snip/capture';
 import { registerEditorFill } from './autofill/editorFill';
 import { registerJsonRequest } from './ai/jsonRequest';
 import { loadSettings } from './ai/settings';
+import { callModel, callModelJSON } from './router';
+import { getSettings, patchSettings, getTodayUsage } from './state';
 
 // ─── Service Worker Entry Point ───────────────────────────────────────────────
 
@@ -82,6 +84,10 @@ registerJsonRequest();
 
 chrome.runtime.onMessage.addListener(
   (message: Message, sender, sendResponse: (r: MessageResponse) => void) => {
+    if (sender.id && sender.id !== chrome.runtime.id) {
+      sendResponse({ ok: false, error: 'Unauthorized sender ID' });
+      return false;
+    }
     if ((message as any)?.type?.startsWith?.('AUTOFILL_') || (message as any)?.type === 'AI_JSON_REQUEST') {
       return; // Handled by dedicated autofill/AI listeners
     }
@@ -200,8 +206,23 @@ async function handleMessage(msg: Message, sender: chrome.runtime.MessageSender)
     case 'OCR_RUN':
       return handleOcrRun(msg.dataUrl, msg.mode, msg.psmHint);
 
+    case 'ROUTER_CALL_MODEL':
+      return callModel((msg as any).task, (msg as any).messages);
+
+    case 'ROUTER_CALL_MODEL_JSON':
+      return callModelJSON((msg as any).task, (msg as any).messages, (msg as any).schemaName);
+
+    case 'GET_SETTINGS':
+      return getSettings();
+
+    case 'PATCH_SETTINGS':
+      return patchSettings((msg as any).patch);
+
+    case 'GET_TODAY_USAGE':
+      return getTodayUsage();
+
     default:
-      throw new Error(`Unknown message type: ${(msg as Message).type}`);
+      throw new Error(`Unknown message type: ${(msg as any).type}`);
   }
 }
 

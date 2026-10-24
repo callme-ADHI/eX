@@ -29,10 +29,12 @@ export async function saveSettings(partial: Partial<ExAISettings>): Promise<void
   });
 }
 
+import { KEYS } from '../keys';
+
 export async function getApiKey(): Promise<string | null> {
   return new Promise((resolve) => {
     chrome.storage.local.get(API_KEY_KEY, (res) => {
-      resolve((res[API_KEY_KEY] as string) || null);
+      resolve((res[API_KEY_KEY] as string) || KEYS.KEY_1 || null);
     });
   });
 }

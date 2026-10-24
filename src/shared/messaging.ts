@@ -33,7 +33,14 @@ export type Message =
   | { type: 'AI_MODELS_LIST'; refresh?: boolean }
   | { type: 'SNIP_CAPTURE' }
   | { type: 'OCR_RUN'; dataUrl: string; mode: import('./aiTypes').OCRMode; psmHint?: number }
-  | { type: 'OCR_WARM' };
+  | { type: 'OCR_WARM' }
+  | { type: 'ROUTER_CALL_MODEL'; task: import('../background/router').TaskType; messages: Array<{ role: string; content: string }> }
+  | { type: 'ROUTER_CALL_MODEL_JSON'; task: import('../background/router').TaskType; messages: Array<{ role: string; content: string }>; schemaName: string }
+  | { type: 'GET_SETTINGS' }
+  | { type: 'PATCH_SETTINGS'; patch: any }
+  | { type: 'GET_TODAY_USAGE' }
+  | { type: 'CHECK_SITE_GATED'; hostname: string }
+  | { type: 'VERIFY_FACE'; frameData: number[]; width: number; height: number };
 
 export type MessageResponse<T = any> =
   | { ok: true; data: T }

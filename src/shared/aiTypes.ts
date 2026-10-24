@@ -48,8 +48,8 @@ export interface ExAISettings {
 }
 
 export const DEFAULT_EXAI_SETTINGS: ExAISettings = {
-  model: 'nvidia/nemotron-3-super-120b-a12b',
-  fallbackChain: ['openai/gpt-oss-20b', 'nvidia/nemotron-nano-3-30b-a3b'],
+  model: 'nvidia/nemotron-3.5-lightning-30b-a3b',
+  fallbackChain: ['nvidia/nemotron-3-nano-omni-30b-a3b-reasoning', 'minimaxai/minimax-m3.1-flash'],
   think: true,
   mode: 'general',
   edgeTrigger: 'strip',
