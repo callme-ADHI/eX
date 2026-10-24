@@ -45,7 +45,7 @@ export async function getOrCreateWorker(): Promise<any> {
       workerInstance = worker;
       return worker;
     } catch (err) {
-      console.error('[eX-AI] Failed to create Tesseract worker:', err);
+      console.error('[eX] Failed to create Tesseract worker:', err);
       workerInstance = null;
       throw err;
     } finally {
@@ -64,7 +64,7 @@ export async function warmWorker(): Promise<void> {
   try {
     await getOrCreateWorker();
   } catch (err) {
-    console.warn('[eX-AI] Worker warmup failed (will retry on run):', err);
+    console.warn('[eX] Worker warmup failed (will retry on run):', err);
   }
 }
 

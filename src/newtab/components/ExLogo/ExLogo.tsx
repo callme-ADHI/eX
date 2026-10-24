@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
 /**
- * AevoarxLogo — High-fidelity SVG vector design.
+ * ExLogo — eX brand logo.
  *
  * Layout:
  *   - Both the Logo Mark (A) and the Wordmark (EVOARX) are drawn inside a single SVG.
@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
  *   - The 'A' (Λ chevron) letter is perfectly centered and symmetrical (spans x=79 to 87, apex at x=83).
  *   - The base of the logo mark and the wordmark are locked to y=26.
  */
-export default function AevoarxLogo() {
+export default function ExLogo() {
   const [hovered, setHovered] = useState(false);
   const sw = 1.5; // Stroke width for wordmark letters
 

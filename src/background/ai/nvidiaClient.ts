@@ -183,7 +183,7 @@ export async function streamOnce(options: StreamOnceOptions): Promise<StreamOnce
 
 export function initAIClient() {
   chrome.runtime.onConnect.addListener((port) => {
-    if (port.name !== 'ex-ai-chat') return;
+    if (port.name !== 'ex-chat') return;
 
     let currentAbortController: AbortController | null = null;
     let pingInterval: ReturnType<typeof setInterval> | null = null;

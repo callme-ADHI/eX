@@ -1,6 +1,6 @@
 // ─── Autofill Audit Log ────────────────────────────────────────────────────────
 
-const KEY = 'exai:autofillAudit';
+const KEY = 'ex:autofillAudit';
 
 export interface AuditEntry {
   t: number;

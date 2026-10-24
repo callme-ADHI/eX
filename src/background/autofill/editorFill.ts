@@ -9,7 +9,7 @@ export function fillEditorInMainWorld(
   token: string,
   code: string,
 ): { ok: boolean; method?: string; error?: string } {
-  const root = document.querySelector(`[data-exai-target="${token}"]`) as any;
+  const root = document.querySelector(`[data-ex-target="${token}"]`) as any;
   if (!root) return { ok: false, error: 'target not found' };
   const w = window as any;
   try {
@@ -23,7 +23,7 @@ export function fillEditorInMainWorld(
       if (ed) {
         ed.focus();
         const model = ed.getModel();
-        ed.executeEdits('exai-autofill', [
+        ed.executeEdits('ex-autofill', [
           { range: model.getFullModelRange(), text: code, forceMoveMarkers: true },
         ]);
         return model.getValue().replace(/\r\n/g, '\n') === code.replace(/\r\n/g, '\n')

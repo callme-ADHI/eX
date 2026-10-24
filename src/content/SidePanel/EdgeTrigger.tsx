@@ -84,8 +84,8 @@ export default function EdgeTrigger({ mode, onOpen }: EdgeTriggerProps) {
         onMouseOut={(e) => {
           (e.currentTarget as HTMLElement).style.opacity = '0.45';
         }}
-        title="Open eX-AI panel"
-        aria-label="Open eX-AI panel"
+        title="Open eX panel"
+        aria-label="Open eX panel"
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {

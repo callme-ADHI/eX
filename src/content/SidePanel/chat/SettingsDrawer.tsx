@@ -486,7 +486,7 @@ export default function SettingsDrawer({
             paddingTop: '12px',
           }}
         >
-          eX-AI v2.0 · Built with ⚡ by <strong style={{ color: 'var(--accent)' }}>ADHI</strong>
+          eX v2.0 · Built with ⚡ by <strong style={{ color: 'var(--accent)' }}>ADHI</strong>
         </div>
       </div>
     </div>

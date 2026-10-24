@@ -105,7 +105,7 @@ export default function SettingsPanel() {
             <div className={styles.panelHeader}>
               <div className={styles.headerTitle}>
                 <span className={styles.gearIcon}>⚙</span>
-                eX1 HUD SETTINGS
+                eX SETTINGS
               </div>
               <button onClick={() => setIsOpen(false)} className={styles.closeBtn}>
                 (×)
@@ -398,9 +398,9 @@ export default function SettingsPanel() {
 
                     <div className={styles.dropdownDivider} style={{ margin: '20px 0' }} />
 
-                    <div className={styles.sectionTitle}>eX1 FIRMWARE DETAILS</div>
+                    <div className={styles.sectionTitle}>eX SYSTEM DETAILS</div>
                     <div className={`${styles.aboutMeta} mono`}>
-                      <div>SYSTEM: eX1 Companion</div>
+                      <div>SYSTEM: eX</div>
                       <div>CORE: Manifest V3 Architecture</div>
                       <div>VERSION: 2.0.0 (Instrument Grade)</div>
                     </div>

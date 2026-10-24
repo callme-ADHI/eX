@@ -49,7 +49,7 @@ export async function captureVisibleTab(
 
     return { ok: true, dataUrl };
   } catch (err: any) {
-    console.error('[eX-AI] captureVisibleTab failed:', err);
+    console.error('[eX] captureVisibleTab failed:', err);
     return {
       ok: false,
       reason: err?.message || "Can't capture this page (restricted origin or internal page)",

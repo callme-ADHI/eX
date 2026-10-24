@@ -31,8 +31,8 @@ interface Props {
 /** Clamp panel width between min/max */
 const MIN_WIDTH = 340;
 const MAX_WIDTH = 720;
-const PANEL_WIDTH_KEY = 'exai:panelWidth';
-const SETTINGS_KEY = 'exai:settings';
+const PANEL_WIDTH_KEY = 'ex:panelWidth';
+const SETTINGS_KEY = 'ex:settings';
 
 /** Error boundary for the entire panel */
 class PanelErrorBoundary extends React.Component<

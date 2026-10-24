@@ -31,8 +31,8 @@ function initCyberScanners() {
 }
 /**
  * ─────────────────────────────────────────────────────────────────────────────
- *  eX-AI Content Script
- *  Brand: Aevoarx | Product: eX-AI
+ *  eX Content Script
+ *  Brand: eX
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -53,7 +53,7 @@ import { startGmailObserver } from './gmail/gmail-scanner';
 //  5. pointer-events:none on host when CLOSED; only EdgeTrigger opts in.
 
 // Guard property — isolated content-script world, not visible to pages
-const INJECTION_GUARD = '__exai_injected__';
+const INJECTION_GUARD = '__ex_injected__';
 
 function isSystemPage() {
   try {
@@ -201,7 +201,7 @@ function init() {
   const randomSuffix = Array.from(crypto.getRandomValues(new Uint8Array(4)))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
-  const hostId = `exai-${randomSuffix}`;
+  const hostId = `ex-${randomSuffix}`;
 
   const container = document.createElement('div');
   container.id = hostId;
@@ -300,10 +300,10 @@ let fetchCount = 0;
 function startTracker() {
   if (!window.location.protocol.startsWith('http')) return;
 
-  // Note: 'ex1:api_access' events originate from tracker.ts running in MAIN world.
-  // This is an existing design — we leave it unchanged (eX-AI doesn't add new
+  // Note: 'ex:api_access' events originate from tracker.ts running in MAIN world.
+  // This is an existing design — we leave it unchanged (eX doesn't add new
   // window-level events; all new messaging goes through chrome.runtime).
-  window.addEventListener('ex1:api_access', (e: any) => {
+  window.addEventListener('ex:api_access', (e: any) => {
     const detail = e.detail;
     if (detail) {
       cameraAccessCount = detail.cameraCount;

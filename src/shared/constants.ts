@@ -36,8 +36,8 @@ export const LIMITS = {
 } as const;
 
 export const STORAGE_KEYS = {
-  settings: 'exai:settings',
-  originsAllowed: 'exai:pageContextOrigins',
-  toolSupport: 'exai:toolSupport',          // { [modelId]: boolean }
-  siteIndexPrefix: 'exai:siteindex:',       // chrome.storage.session, per origin
+  settings: 'ex:settings',
+  originsAllowed: 'ex:pageContextOrigins',
+  toolSupport: 'ex:toolSupport',          // { [modelId]: boolean }
+  siteIndexPrefix: 'ex:siteindex:',       // chrome.storage.session, per origin
 } as const;

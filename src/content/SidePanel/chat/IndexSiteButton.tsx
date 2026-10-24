@@ -33,7 +33,7 @@ export default function IndexSiteButton({ onIndexChanged }: IndexSiteButtonProps
     const allowed = await isOriginAllowed(location.origin);
     if (!allowed) {
       const confirmConsent = window.confirm(
-        `Allow eX-AI to index and read pages from ${location.origin}?`
+        `Allow eX to index and read pages from ${location.origin}?`
       );
       if (!confirmConsent) return;
       allowOnce(location.origin);

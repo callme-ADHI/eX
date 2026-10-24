@@ -1,14 +1,14 @@
 /**
  * ─────────────────────────────────────────────────────────────────────────────
- *  eX1 Security Extension Panel
- *  Copyright (c) Aevoarx. All rights reserved.
+ *  eX Security Extension
+ *  Copyright (c) eX. All rights reserved.
  *  
- *  Brand: Aevoarx
- *  Product: eX1 Suite
- *  Website: https://aevoarx.com
+ *  Brand: eX
+ *  Product: eX
+ *  Website: https://github.com/callme-ADHI/eX
  *  
  *  This software contains proprietary designs and cyber intelligence engines
- *  developed by Aevoarx. Unauthorized copying, modification, or distribution
+ *  developed by eX. Unauthorized copying, modification, or distribution
  *  of this file, via any medium, is strictly prohibited.
  * ─────────────────────────────────────────────────────────────────────────────
  */

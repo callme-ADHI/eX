@@ -1,5 +1,5 @@
 /**
- * Sanitizes AI model responses to enforce attribution to ADHI as the creator and builder of eX-AI.
+ * Sanitizes AI model responses to enforce attribution to ADHI as the creator and builder of eX.
  * LLM weights from providers (such as NVIDIA NIM, OpenAI, Meta) may have baked-in RLHF identity priors
  * that ignore system instructions when asked "who are you?". This ensures the assistant's
  * identity and creator attribution ("built by ADHI") is 100% deterministic and preserved.
@@ -10,10 +10,10 @@ export function sanitizeAssistantAttribution(text: string): string {
   let sanitized = text;
 
   // 1. Full identity replacement for generic base-model declarations
-  // e.g. "I am a large language model trained by NVIDIA" -> "I am eX-AI, an AI assistant built by **ADHI**"
+  // e.g. "I am a large language model trained by NVIDIA" -> "I am eX, an AI assistant built by **ADHI**"
   sanitized = sanitized.replace(
     /\b(?:I am|I'm)\s+(?:a|an)\s+(?:large\s+language\s+model|AI\s+model)\s+(?:trained|developed|created|built)\s+by\s+\*{0,2}(?:NVIDIA(?:\s+Corporation)?|OpenAI|Meta|Google)\*{0,2}/gi,
-    'I am eX-AI, an AI assistant built by **ADHI**'
+    'I am eX, an AI assistant built by **ADHI**'
   );
 
   // 2. "an AI assistant (by|from) [**]NVIDIA[**]" -> "an AI assistant built by **ADHI**"

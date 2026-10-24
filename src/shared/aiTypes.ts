@@ -1,4 +1,4 @@
-// ─── eX-AI Shared AI Types ────────────────────────────────────────────────────
+// ─── eX Shared AI Types ────────────────────────────────────────────────────
 
 import type { Scope, ContextMeta, ActivityItem } from '../content/pageText/types';
 
@@ -17,7 +17,7 @@ export type BrowseMode = 'context' | 'tools';
 /** Theme mode for the panel UI */
 export type ThemeMode = 'dark' | 'light' | 'auto';
 
-/** eX-AI settings shape — all fields have defaults */
+/** eX settings shape — all fields have defaults */
 export interface ExAISettings {
   model: string;
   fallbackChain: string[];
@@ -112,7 +112,7 @@ export interface ModelEntry {
   label: string;
 }
 
-// ─── Port message types (content ⇄ service worker via port 'ex-ai-chat') ────
+// ─── Port message types (content ⇄ service worker via port 'ex-chat') ────
 
 export type PortMessageIn =
   | {

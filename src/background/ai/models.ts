@@ -5,7 +5,7 @@
 import type { ModelEntry, AIModelsListResponse } from '../../shared/aiTypes';
 import { loadSettings, getApiKey } from './settings';
 
-const MODELS_CACHE_KEY = 'exai:models';
+const MODELS_CACHE_KEY = 'ex:models';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 interface ModelsCache {
@@ -74,7 +74,7 @@ export async function getModels(refresh = false): Promise<{ models: ModelEntry[]
     });
     return entry;
   } catch (e) {
-    console.error('[eX-AI] Models fetch error:', e);
+    console.error('[eX] Models fetch error:', e);
     // Return empty on failure
     return { models: [], fetchedAt: 0 };
   }

@@ -11,7 +11,7 @@ import Dock from './components/Dock/Dock';
 import ProductivityCard from './components/ProductivityCard/ProductivityCard';
 import TabIntelCard from './components/TabIntelCard/TabIntelCard';
 import SettingsPanel from './components/Settings/SettingsPanel';
-import AevoarxLogo from './components/AevoarxLogo/AevoarxLogo';
+import ExLogo from './components/ExLogo/ExLogo';
 
 import styles from './App.module.css';
 
@@ -48,7 +48,7 @@ export default function App() {
 
       {/* ── Brand logo — top-right corner ────────── */}
       <div className={styles.logoArea}>
-        <AevoarxLogo />
+        <ExLogo />
       </div>
 
       {/* ── Settings gear ───────────────────────── */}

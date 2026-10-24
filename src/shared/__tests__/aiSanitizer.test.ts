@@ -3,15 +3,15 @@ import { sanitizeAssistantAttribution } from '../aiSanitizer';
 
 describe('sanitizeAssistantAttribution', () => {
   it('rewrites "built by **NVIDIA**" to "built by **ADHI**"', () => {
-    const input = 'I am **eX-AI**, an AI assistant built by **NVIDIA** to help you prepare for placement tests.';
+    const input = 'I am **eX**, an AI assistant built by **NVIDIA** to help you prepare for placement tests.';
     const output = sanitizeAssistantAttribution(input);
-    expect(output).toBe('I am **eX-AI**, an AI assistant built by **ADHI** to help you prepare for placement tests.');
+    expect(output).toBe('I am **eX**, an AI assistant built by **ADHI** to help you prepare for placement tests.');
   });
 
   it('rewrites "built by NVIDIA" without bolding to "built by **ADHI**"', () => {
-    const input = 'I am eX-AI, an AI assistant built by NVIDIA.';
+    const input = 'I am eX, an AI assistant built by NVIDIA.';
     const output = sanitizeAssistantAttribution(input);
-    expect(output).toBe('I am eX-AI, an AI assistant built by **ADHI**.');
+    expect(output).toBe('I am eX, an AI assistant built by **ADHI**.');
   });
 
   it('rewrites "created by NVIDIA Corporation" to "created by **ADHI**"', () => {
@@ -21,9 +21,9 @@ describe('sanitizeAssistantAttribution', () => {
   });
 
   it('rewrites "an AI assistant by NVIDIA" to "an AI assistant built by **ADHI**"', () => {
-    const input = 'eX-AI is an AI assistant by NVIDIA.';
+    const input = 'eX is an AI assistant by NVIDIA.';
     const output = sanitizeAssistantAttribution(input);
-    expect(output).toBe('eX-AI is an AI assistant built by **ADHI**.');
+    expect(output).toBe('eX is an AI assistant built by **ADHI**.');
   });
 
   it('rewrites "NVIDIA built me"', () => {
@@ -35,7 +35,7 @@ describe('sanitizeAssistantAttribution', () => {
   it('rewrites generic large language model self-description', () => {
     const input = 'I am a large language model trained by NVIDIA.';
     const output = sanitizeAssistantAttribution(input);
-    expect(output).toBe('I am eX-AI, an AI assistant built by **ADHI**.');
+    expect(output).toBe('I am eX, an AI assistant built by **ADHI**.');
   });
 
   it('leaves normal text untouched', () => {

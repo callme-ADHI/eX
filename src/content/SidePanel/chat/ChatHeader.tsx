@@ -63,7 +63,7 @@ export default function ChatHeader({
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '2px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-            ⚡ eX-AI
+            ⚡ eX
           </span>
           <span style={{ fontSize: '10px', color: 'var(--accent)', fontWeight: 600, background: 'var(--tab-active-bg, rgba(36, 82, 255, 0.15))', padding: '1px 6px', borderRadius: '4px' }}>
             by ADHI

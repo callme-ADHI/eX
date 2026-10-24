@@ -21,7 +21,7 @@ export class ComponentErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo): void {
-    console.warn('[eX-AI] ComponentErrorBoundary caught error:', error, info);
+    console.warn('[eX] ComponentErrorBoundary caught error:', error, info);
   }
 
   render(): ReactNode {

@@ -1,14 +1,14 @@
 // ─── Chat Storage Manager ─────────────────────────────────────────────────────
 // Storage schema:
-//   exai:activeChat -> string (active chat id)
-//   exai:chats -> ChatIndex[] (sorted by updatedAt desc, max 50)
-//   exai:chat:<id> -> ChatSession
+//   ex:activeChat -> string (active chat id)
+//   ex:chats -> ChatIndex[] (sorted by updatedAt desc, max 50)
+//   ex:chat:<id> -> ChatSession
 
 import type { ChatMessage, ChatSession, ChatIndex, AIMode } from '../../../shared/aiTypes';
 
-const ACTIVE_CHAT_KEY = 'exai:activeChat';
-const CHATS_INDEX_KEY = 'exai:chats';
-const CHAT_PREFIX = 'exai:chat:';
+const ACTIVE_CHAT_KEY = 'ex:activeChat';
+const CHATS_INDEX_KEY = 'ex:chats';
+const CHAT_PREFIX = 'ex:chat:';
 const MAX_CHATS = 50;
 
 /** Generate unique ID */
@@ -122,7 +122,7 @@ export async function saveChatSession(session: ChatSession): Promise<void> {
       );
     });
   } catch (err) {
-    console.error('[eX-AI] Failed to save chat session:', err);
+    console.error('[eX] Failed to save chat session:', err);
   }
 }
 

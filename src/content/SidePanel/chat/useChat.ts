@@ -119,7 +119,7 @@ export function useChat(options: UseChatOptions = {}) {
         setKeyHint(res.keyHint || '');
       }
     } catch (err) {
-      console.error('[eX-AI] Failed to fetch settings:', err);
+      console.error('[eX] Failed to fetch settings:', err);
     }
   }, []);
 
@@ -135,7 +135,7 @@ export function useChat(options: UseChatOptions = {}) {
         setModels(res.models);
       }
     } catch (err) {
-      console.error('[eX-AI] Failed to fetch models:', err);
+      console.error('[eX] Failed to fetch models:', err);
     }
   }, []);
 
@@ -148,10 +148,10 @@ export function useChat(options: UseChatOptions = {}) {
   useEffect(() => {
     const listener = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
       if (area !== 'local') return;
-      if ('exai:chats' in changes) {
-        setChatIndex((changes['exai:chats'].newValue as ChatIndex[]) || []);
+      if ('ex:chats' in changes) {
+        setChatIndex((changes['ex:chats'].newValue as ChatIndex[]) || []);
       }
-      if ('exai:settings' in changes) {
+      if ('ex:settings' in changes) {
         refreshSettings();
       }
     };
@@ -200,7 +200,7 @@ export function useChat(options: UseChatOptions = {}) {
   const getPort = useCallback(() => {
     if (portRef.current) return portRef.current;
     try {
-      const port = chrome.runtime.connect({ name: 'ex-ai-chat' });
+      const port = chrome.runtime.connect({ name: 'ex-chat' });
       port.onDisconnect.addListener(() => {
         portRef.current = null;
         if (isStreamingRef.current) {
@@ -216,7 +216,7 @@ export function useChat(options: UseChatOptions = {}) {
       portRef.current = port;
       return port;
     } catch (err: any) {
-      console.error('[eX-AI] Failed to connect port:', err);
+      console.error('[eX] Failed to connect port:', err);
       return null;
     }
   }, []);
@@ -517,7 +517,7 @@ export function useChat(options: UseChatOptions = {}) {
             setJsOnlyNotice(false);
           }
         } catch (e) {
-          console.warn('[eX-AI] Failed to collect context:', e);
+          console.warn('[eX] Failed to collect context:', e);
         }
       }
 

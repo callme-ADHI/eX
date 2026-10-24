@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "eX-AI",
+  "name": "eX",
   "version": "2.0.0",
   "description": "Instrument-grade AI browser companion — dashboard, focus engine, security scanner, and productivity intelligence.",
   "permissions": [
@@ -49,7 +49,7 @@
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
   "action": {
-    "default_title": "eX1 Dashboard",
+    "default_title": "eX Dashboard",
     "default_icon": "icon-128.png"
   },
   "icons": {
@@ -61,7 +61,7 @@
         "default": "Ctrl+Space",
         "mac": "Ctrl+Space"
       },
-      "description": "Toggle the eX1 AI Wheel"
+      "description": "Toggle the eX AI Wheel"
     },
     "start-snip": {
       "suggested_key": {

@@ -51,7 +51,7 @@ export type MessageResponse<T = any> =
 export function sendMessage<T = any>(message: Message): Promise<MessageResponse<T>> {
   return new Promise((resolve) => {
     if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
-      console.warn('[eX1] Messaging fallback: Extension environment not available.', message);
+      console.warn('[eX] Messaging fallback: Extension environment not available.', message);
       resolve({ ok: false, error: 'Extension environment not available' });
       return;
     }

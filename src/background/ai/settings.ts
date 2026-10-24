@@ -1,5 +1,5 @@
 // ─── AI Settings Manager ──────────────────────────────────────────────────────
-// Handles exai:settings and exai:apiKey (key stays in service worker only)
+// Handles ex:settings and ex:apiKey (key stays in service worker only)
 
 import type {
   ExAISettings,
@@ -8,8 +8,8 @@ import type {
 } from '../../shared/aiTypes';
 import { DEFAULT_EXAI_SETTINGS } from '../../shared/aiTypes';
 
-const SETTINGS_KEY = 'exai:settings';
-const API_KEY_KEY  = 'exai:apiKey';
+const SETTINGS_KEY = 'ex:settings';
+const API_KEY_KEY  = 'ex:apiKey';
 
 /** Merge stored settings with defaults, tolerating missing/old fields */
 export async function loadSettings(): Promise<ExAISettings> {

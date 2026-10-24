@@ -17,7 +17,7 @@ export async function fillEditor(
   const token = Array.from(crypto.getRandomValues(new Uint8Array(16)))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
-  h.root.setAttribute('data-exai-target', token);
+  h.root.setAttribute('data-ex-target', token);
   try {
     return (
       (await chrome.runtime.sendMessage({ type: 'AUTOFILL_EDITOR_FILL', token, code })) ?? {
@@ -26,6 +26,6 @@ export async function fillEditor(
       }
     );
   } finally {
-    h.root.removeAttribute('data-exai-target');
+    h.root.removeAttribute('data-ex-target');
   }
 }
