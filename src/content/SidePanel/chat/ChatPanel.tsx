@@ -146,6 +146,28 @@ export default function ChatPanel({
         onRetry={regenerate}
       />
 
+      
+      {/* Cybersecurity Preset Chips */}
+      <div style={{ display: "flex", gap: "6px", padding: "6px 12px", overflowX: "auto", scrollbarWidth: "none", flexShrink: 0 }}>
+        {["Explain this site's risks", "Is this email safe?", "How to fix my CSP"].map((chip) => (
+          <button
+            key={chip}
+            onClick={() => handleComposerChange(chip)}
+            style={{
+              padding: "4px 9px",
+              background: "rgba(36,82,255,0.12)",
+              border: "1px solid rgba(36,82,255,0.3)",
+              borderRadius: "12px",
+              color: "var(--text-secondary, #cbd5e1)",
+              fontSize: "11px",
+              whiteSpace: "nowrap",
+              cursor: "pointer",
+            }}
+          >
+            {chip}
+          </button>
+        ))}
+      </div>
       <Composer
         input={composerText}
         onChange={handleComposerChange}

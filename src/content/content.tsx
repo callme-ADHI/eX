@@ -1,3 +1,34 @@
+
+function initCyberScanners() {
+  if (isSystemPage()) return;
+
+  setTimeout(() => {
+    try {
+      const features = extractPageFeatures();
+      chrome.runtime.sendMessage({
+        type: 'SITE_SCAN',
+        payload: { url: window.location.href, features },
+      }).catch(() => {});
+    } catch (_) {}
+  }, 1000);
+
+  if (window.location.hostname === 'mail.google.com') {
+    startGmailObserver(
+      (rows) => {
+        chrome.runtime.sendMessage({
+          type: 'MAIL_BATCH',
+          payload: { rows },
+        }).catch(() => {});
+      },
+      (mail) => {
+        chrome.runtime.sendMessage({
+          type: 'MAIL_DEEP',
+          payload: { mail },
+        }).catch(() => {});
+      }
+    );
+  }
+}
 /**
  * ─────────────────────────────────────────────────────────────────────────────
  *  eX-AI Content Script
@@ -10,6 +41,8 @@ import { createRoot } from 'react-dom/client';
 import SidePanel from './SidePanel/SidePanel';
 import LockOverlay from './LockOverlay/LockOverlay';
 import lockStyles from './LockOverlay/LockOverlay.css?inline';
+import { extractPageFeatures } from './page-features';
+import { startGmailObserver } from './gmail/gmail-scanner';
 
 // ─── Content Script ──────────────────────────────────────────────────────────
 // Key design principles:
@@ -255,6 +288,7 @@ function init() {
 
   // ── Page metadata tracking ───────────────────────────────────────────────
   startTracker();
+  initCyberScanners();
 }
 
 // ─── API Usage and Metadata Reporting ────────────────────────────────────────

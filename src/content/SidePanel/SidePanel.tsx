@@ -8,6 +8,13 @@ import EdgeTrigger from './EdgeTrigger';
 import Tabs, { type TabId } from './Tabs';
 import ChatPanel from './chat/ChatPanel';
 import AutofillTab from './autofill/AutofillTab';
+import OverviewTab from './OverviewTab';
+import SiteTab from './SiteTab';
+import MailTab from './MailTab';
+import FindingsTab from './FindingsTab';
+import SettingsTab from './SettingsTab';
+import { extractPageFeatures } from '../page-features';
+import { scanInboxRows } from '../gmail/gmail-scanner';
 import SnipOverlay, { SnipResult } from './SnipOverlay';
 import styles from './SidePanel.module.css';
 import type { AttachmentChipData } from './chat/Composer';
@@ -86,7 +93,119 @@ export default function SidePanel({
 }: Props) {
   const [currentSession, setCurrentSession] = useState<FocusSession | null>(null);
   const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabId>('ai');
+  const [activeTab, setActiveTab] = useState<TabId>('overview');
+  const [siteVerdict, setSiteVerdict] = useState<any>(null);
+  const [mailSummary, setMailSummary] = useState<any>(null);
+  const [deepVerdict, setDeepVerdict] = useState<any>(null);
+  const [findings, setFindings] = useState<any[]>([]);
+  const [scanningActive, setScanningActive] = useState(false);
+  const [scanningSite, setScanningSite] = useState(false);
+  const [scanningMail, setScanningMail] = useState(false);
+
+  const isLocalhost = Boolean(
+    typeof window !== 'undefined' &&
+    (['localhost', '127.0.0.1', '::1', '[::1]'].includes(window.location.hostname) ||
+     /^(\d{1,3}\.){3}\d{1,3}$/.test(window.location.hostname))
+  );
+  const isGmail = typeof window !== 'undefined' && window.location.hostname === 'mail.google.com';
+
+  const refreshCyberState = useCallback(() => {
+    chrome.runtime.sendMessage({ type: 'GET_SITE_VERDICT' }, (res) => {
+      if (res?.ok && res.data) setSiteVerdict(res.data);
+    });
+    chrome.runtime.sendMessage({ type: 'GET_FINDINGS' }, (res) => {
+      if (res?.ok && res.data) setFindings(res.data);
+    });
+    if (isGmail) {
+      chrome.runtime.sendMessage({ type: 'GET_MAIL_SUMMARY' }, (res) => {
+        if (res?.ok && res.data) setMailSummary(res.data);
+      });
+    }
+  }, [isGmail]);
+
+  useEffect(() => {
+    if (open) {
+      refreshCyberState();
+    }
+  }, [open, refreshCyberState]);
+
+  const handleTrustSite = (hostname: string) => {
+    chrome.runtime.sendMessage({ type: 'TRUST_SITE', hostname }, () => {
+      chrome.runtime.sendMessage({ type: 'GET_SITE_VERDICT' }, (res) => {
+        if (res?.ok && res.data) setSiteVerdict(res.data);
+      });
+    });
+  };
+
+  const handleRescanSite = () => {
+    setScanningSite(true);
+    const features = extractPageFeatures();
+    chrome.runtime.sendMessage(
+      { type: 'SITE_SCAN', payload: { url: window.location.href, features } },
+      (res) => {
+        setScanningSite(false);
+        if (res?.ok && res.data) {
+          setSiteVerdict(res.data);
+          chrome.runtime.sendMessage({ type: 'GET_FINDINGS' }, (fRes) => {
+            if (fRes?.ok && fRes.data) setFindings(fRes.data);
+          });
+        }
+      }
+    );
+  };
+
+  const handleRescanMail = () => {
+    if (!isGmail) return;
+    setScanningMail(true);
+    const rows = scanInboxRows();
+    chrome.runtime.sendMessage(
+      { type: 'MAIL_BATCH', payload: { rows } },
+      (res) => {
+        setScanningMail(false);
+        if (res?.ok && res.data) {
+          setMailSummary(res.data);
+        }
+      }
+    );
+  };
+
+  const handleRunActiveScan = () => {
+    setScanningActive(true);
+    chrome.runtime.sendMessage(
+      { type: 'RUN_ACTIVE_VULN_SCAN', origin: window.location.origin },
+      (res) => {
+        setScanningActive(false);
+        if (res?.ok && Array.isArray(res.data)) {
+          setFindings((prev) => {
+            const filtered = prev.filter((f) => f.mode !== 'active');
+            return [...filtered, ...res.data];
+          });
+        }
+      }
+    );
+  };
+
+  const handleExplainWithAI = (finding: any) => {
+    const prompt = "Explain this vulnerability and how to fix it: " + finding.title + " at " + (finding.url || window.location.href) + ". Evidence: " + finding.evidence;
+    setComposerInput(prompt);
+    setActiveTab('chat');
+  };
+
+  const handleAskAIAboutPage = () => {
+    const prompt = "Analyze the cybersecurity posture, authentication risks, and safety of this webpage (" + window.location.href + ").";
+    setComposerInput(prompt);
+    setActiveTab('chat');
+  };
+
+  const handleClearData = () => {
+    chrome.runtime.sendMessage({ type: 'CLEAR_DATA' }, () => {
+      setSiteVerdict(null);
+      setMailSummary(null);
+      setDeepVerdict(null);
+      setFindings([]);
+    });
+  };
+
   const [panelWidth, setPanelWidth] = useState(defaultWidth);
   const [edgeTriggerMode, setEdgeTriggerMode] = useState<'strip' | 'handle' | 'off'>('strip');
   const [themeMode, setThemeMode] = useState<ThemeMode>('dark');
@@ -234,7 +353,7 @@ export default function SidePanel({
     setScreenshotUrl(null);
     setIsPanelHiddenForSnip(false);
     setOpen(true);
-    setActiveTab('ai');
+    setActiveTab('chat');
 
     lastCroppedDataUrlRef.current = snip.dataUrl;
 
@@ -533,7 +652,51 @@ export default function SidePanel({
             {/* ── Tab content ── */}
             <PanelErrorBoundary>
               <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                {activeTab === 'ai' && (
+                {activeTab === 'overview' && (
+                  <OverviewTab
+                    siteVerdict={siteVerdict}
+                    mailSummary={mailSummary}
+                    findings={findings}
+                    onSelectTab={setActiveTab}
+                    onStartSnip={triggerSnip}
+                    onRunActiveScan={handleRunActiveScan}
+                    onAskAIAboutPage={handleAskAIAboutPage}
+                    isLocalhost={isLocalhost}
+                    scanningActive={scanningActive}
+                  />
+                )}
+
+                {activeTab === 'site' && (
+                  <SiteTab
+                    url={typeof window !== 'undefined' ? window.location.href : ''}
+                    verdict={siteVerdict}
+                    onTrustSite={handleTrustSite}
+                    onRescan={handleRescanSite}
+                    scanning={scanningSite}
+                  />
+                )}
+
+                {activeTab === 'mail' && (
+                  <MailTab
+                    isGmail={isGmail}
+                    mailSummary={mailSummary}
+                    deepVerdict={deepVerdict}
+                    onRescanMail={handleRescanMail}
+                    scanning={scanningMail}
+                  />
+                )}
+
+                {activeTab === 'findings' && (
+                  <FindingsTab
+                    findings={findings}
+                    isLocalhost={isLocalhost}
+                    scanningActive={scanningActive}
+                    onRunActiveScan={handleRunActiveScan}
+                    onExplainWithAI={handleExplainWithAI}
+                  />
+                )}
+
+                {activeTab === 'chat' && (
                   <ChatPanel
                     onStartSnip={triggerSnip}
                     ocrAttachment={ocrAttachment}
@@ -545,19 +708,8 @@ export default function SidePanel({
                   />
                 )}
 
-                {activeTab === 'focus' && (
-                  <div style={{
-                    flex: 1,
-                    padding: '20px 16px 12px',
-                    overflowY: 'auto',
-                    overscrollBehavior: 'contain',
-                  }}>
-                    <FocusGlance session={currentSession} />
-                  </div>
-                )}
-
-                {activeTab === 'autofill' && (
-                  <AutofillTab ownHost={container} />
+                {activeTab === 'settings' && (
+                  <SettingsTab onClearData={handleClearData} />
                 )}
               </div>
             </PanelErrorBoundary>

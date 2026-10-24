@@ -31,6 +31,8 @@ import { registerJsonRequest } from './ai/jsonRequest';
 import { loadSettings } from './ai/settings';
 import { callModel, callModelJSON } from './router';
 import { getSettings, patchSettings, getTodayUsage } from './state';
+import { initFaceAuthEngine, verifyFace } from './faceAuthEngine';
+import { processSiteScan, processMailBatch, processMailDeep, runActiveScanForTab, getSiteVerdictForTab, getFindingsForTab, getMailSummaryForTab } from './orchestrator';
 
 // ─── Service Worker Entry Point ───────────────────────────────────────────────
 
@@ -52,22 +54,11 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
 
 // ─── Engine initialisation ────────────────────────────────────────────────────
 
-initFocusEngine();
 initTabEngine();
+initFaceAuthEngine();
 
-// Security engine is gated by user setting (default OFF for privacy).
-// It sends visited domains to third-party geo-IP and RDAP services.
-// Users must explicitly enable it in eX-AI settings.
-(async () => {
-  const stored = await storageGet<Record<string, unknown>>('exai:settings');
-  const securityEngineEnabled = stored?.securityEngineEnabled ?? false;
-  if (securityEngineEnabled) {
-    initSecurityEngine();
-  }
-})();
-
-initProductivityEngine();
-initializeTabIntelligence();
+// Security engine is active for cyber posture
+initSecurityEngine();
 initAIClient();
 
 // Register Autofill editor fill in MAIN world
@@ -98,7 +89,7 @@ chrome.runtime.onMessage.addListener(
   }
 );
 
-async function handleMessage(msg: Message, sender: chrome.runtime.MessageSender): Promise<unknown> {
+async function handleMessage(msg: any, sender: chrome.runtime.MessageSender): Promise<unknown> {
   switch (msg.type) {
     case 'PAGE_META': {
       const tabId = sender.tab?.id;
@@ -135,7 +126,7 @@ async function handleMessage(msg: Message, sender: chrome.runtime.MessageSender)
       return;
 
     case 'CLOSE_TABS':
-      await Promise.all(msg.tabIds.map((id) => chrome.tabs.remove(id)));
+      await Promise.all(msg.tabIds.map((id: number) => chrome.tabs.remove(id)));
       return;
 
     case 'REQUEST_SECURITY_REPORT': {
@@ -220,6 +211,43 @@ async function handleMessage(msg: Message, sender: chrome.runtime.MessageSender)
 
     case 'GET_TODAY_USAGE':
       return getTodayUsage();
+
+    case 'FACE_AUTH_VERIFY':
+      return verifyFace((msg as any).imageData);
+    case 'SITE_SCAN':
+      return processSiteScan((msg as any).payload, sender.tab?.id);
+
+    case 'MAIL_BATCH':
+      return processMailBatch((msg as any).payload, sender.tab?.id);
+
+    case 'MAIL_DEEP':
+      return processMailDeep((msg as any).payload, sender.tab?.id);
+
+    case 'RUN_ACTIVE_VULN_SCAN':
+      return runActiveScanForTab((msg as any).origin, sender.tab?.id);
+
+    case 'GET_SITE_VERDICT':
+      return getSiteVerdictForTab((msg as any).tabId || sender.tab?.id);
+
+    case 'GET_FINDINGS':
+      return getFindingsForTab((msg as any).tabId || sender.tab?.id);
+
+    case 'GET_MAIL_SUMMARY':
+      return getMailSummaryForTab((msg as any).tabId || sender.tab?.id);
+
+    case 'TRUST_SITE': {
+      const hostname = (msg as any).hostname;
+      const cur = await getSettings();
+      const list = new Set(cur.trustedHostnames || []);
+      list.add(hostname);
+      return patchSettings({ trustedHostnames: Array.from(list) });
+    }
+
+    case 'CLEAR_DATA': {
+      await chrome.storage.local.remove(['history', 'cache']);
+      return { ok: true };
+    }
+
 
     default:
       throw new Error(`Unknown message type: ${(msg as any).type}`);

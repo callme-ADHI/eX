@@ -1,32 +1,7 @@
 {
-  "chat": {
-    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-    "key": "KEY_1",
-    "temperature": 0.4,
-    "max_tokens": 1200
-  },
-  "mailBatch": {
-    "model": "nvidia/nemotron-3.5-bolt-e4b",
-    "key": "KEY_2",
-    "temperature": 0,
-    "max_tokens": 1200
-  },
-  "mailDeep": {
-    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-    "key": "KEY_2",
-    "temperature": 0,
-    "max_tokens": 600
-  },
-  "sitePhish": {
-    "model": "nvidia/nemotron-3.5-bolt-e4b",
-    "key": "KEY_3",
-    "temperature": 0,
-    "max_tokens": 400
-  },
-  "vuln": {
-    "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
-    "key": "KEY_3",
-    "temperature": 0.1,
-    "max_tokens": 1200
-  }
+  "chat":      { "model": "nvidia/nemotron-3.5-lightning-30b-a3b", "key": "KEY_1", "temperature": 0.4, "max_tokens": 1200 },
+  "mailBatch": { "model": "nvidia/nemotron-3.5-bolt-e4b",          "key": "KEY_2", "temperature": 0.0, "max_tokens": 1200 },
+  "mailDeep":  { "model": "nvidia/nemotron-3.5-lightning-30b-a3b", "key": "KEY_2", "temperature": 0.0, "max_tokens": 600 },
+  "sitePhish": { "model": "nvidia/nemotron-3.5-bolt-e4b",          "key": "KEY_3", "temperature": 0.0, "max_tokens": 400 },
+  "vuln":      { "model": "nvidia/nemotron-3.5-lightning-30b-a3b", "key": "KEY_3", "temperature": 0.1, "max_tokens": 1200 }
 }
