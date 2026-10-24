@@ -1,204 +1,450 @@
-# ⚡ eX-AI
-
 <div align="center">
 
-**Instrument-Grade AI Practice Companion, Offline Screen-Snip OCR & Website Awareness Extension**  
-*Created & Built with ⚡ by **ADHI***
+# 🛡️ eX
 
-[![Manifest V3](https://img.shields.io/badge/Chrome%20Extension-Manifest%20V3-blue?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/intro/)
-[![React 19](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Bundler-Vite%208-646cff?logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Vitest](https://img.shields.io/badge/Tests-84%20Passed-4ade80?logo=vitest&logoColor=white)](https://vitest.dev/)
-[![Tesseract.js](https://img.shields.io/badge/Offline%20OCR-Tesseract.js%20WASM-00b4d8)](https://tesseract.projectnaptha.com/)
-[![NVIDIA NIM](https://img.shields.io/badge/AI%20Inference-NVIDIA%20NIM-76b900?logo=nvidia&logoColor=white)](https://build.nvidia.com/)
-[![Built by ADHI](https://img.shields.io/badge/Author-ADHI-7094ff?style=flat&logo=github)](https://github.com/callme-ADHI)
+### An AI-powered cyber-defense layer that lives in your browser.
+**Phishing · Malicious sites · Ad-click hijacking · Permission abuse · Local-app vulnerabilities · Biometric lock**  
+*Local-first. Explainable. Privacy-preserving.*
 
-[Features](#-key-features) • [Website Awareness](#-website-awareness) • [Security Architecture](#-security-architecture) • [Installation](#-installation--setup) • [Shortcuts](#-keyboard-shortcuts) • [Architecture](#-architecture) • [Author](#-author)
+[![Manifest V3](https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-React%2019-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![AI](https://img.shields.io/badge/AI-NVIDIA%20NIM-76B900?logo=nvidia&logoColor=white)](https://build.nvidia.com/)
+[![Local first](https://img.shields.io/badge/Privacy-Local--first-00C2A8)](#privacy-design)
+[![Author](https://img.shields.io/badge/Author-ADHI-7094ff?logo=github)](https://github.com/callme-ADHI)
+[![Status](https://img.shields.io/badge/Status-Hackathon%20build-orange)](#)
+
+<br/>
+
+<img src="docs/screenshots/overview.png" alt="eX Overview panel" width="860"/>
 
 </div>
 
 ---
 
-## 📖 Overview
+## Table of contents
 
-**eX-AI** is a high-performance Chrome Extension (Manifest V3) built by **ADHI**. It brings an instrument-grade AI practice assistant, **100% offline screen-snip OCR**, and **full website awareness** directly into any browser tab without disrupting your workflow.
-
-Designed specifically for students, software engineers, and competitive programmers preparing for campus placement exams, technical coding interviews, and aptitude tests, eX-AI slides in from the right edge with a dark, distraction-free interface.
-
----
-
-## 🌟 Key Features
-
-### 1. 🪟 Slide-In AI Companion Panel
-- **Auto-Popup on Edge Hover**: Move your cursor within 25px of the right screen edge to reveal the panel automatically.
-- **`Ctrl+Space` Universal Shortcut**: Fast, reliable keyboard toggle that never conflicts with host website hotkeys.
-- **Closed Shadow DOM & CSP Immunity**: Encapsulated in a closed Shadow Root with **100% inlined CSS and design tokens**. Works seamlessly on strict CSP pages like Google, YouTube, GitHub, and corporate intranets.
-- **Smart Keyboard Isolation**: Captures keystrokes inside the panel so typing your prompts never triggers website actions in the background.
-- **Fluid Resizing**: Smooth drag-to-resize handle (340px to 720px) with persistent width memory across sessions.
-- **Natural Chat UX**: Press **`Enter`** to send and **`Shift+Enter`** to insert newlines.
-
-### 2. ✂️ 100% Offline Screen-to-Text OCR (Snip)
-- **Zero Cloud Leakage**: All image cropping, preprocessing, and character recognition execute completely locally on your device via Tesseract.js WebAssembly inside an isolated MV3 Offscreen Worker.
-- **Full Viewport Capture**: Seamlessly snip anywhere across the visible screen using Chrome native viewport capture API (`captureVisibleTab`) — no DOM access permissions required.
-- **Adaptive Preprocessing Pipeline**: Automatic 2× canvas upscaling, Rec. 709 luminance conversion, contrast stretching, and automatic background inversion for dark mode code editors.
-- **Specialized Recognition Modes**:
-  - **Text Mode**: Unwraps soft linebreaks, cleans hyphens, and normalizes ligatures.
-  - **Code Mode**: Strictly preserves exact column indentation, spacing, and bracket alignments.
-- **Ephemeral In-Memory Processing**: The captured screenshot exists strictly in RAM and is **deleted immediately** once text extraction finishes. Zero images are saved to disk or persistent storage.
-
-### 3. 🌐 Website Awareness (Read & Browse)
-- **Multi-Scope Page Extraction**:
-  - `main`: Core document content (skips nav, header, footer, ads).
-  - `page`: Entire visible document body text.
-  - `selection`: Active highlighted text selection on the page.
-  - `off`: Context disabled.
-- **Provenance-Guarded Tool Calling**:
-  - `get_page_structure`: Page title, meta description, headings hierarchy, third-party script/resource hosts, and form field signatures.
-  - `get_page_links`: Discovers internal and external links ranked by content region (main, nav, aside, footer).
-  - `get_page_text`: Re-reads visible text across scopes.
-  - `get_sitemap`: Reads `robots.txt` and parses XML sitemaps/sitemap indexes.
-  - `fetch_page`: Fetches same-origin pages on demand with a strict 2MB cap, 300ms polite spacing, and DOMParser extraction.
-  - `search_site`: In-memory BM25 lexical search over indexed site passages.
-- **Ephemeral Site Indexing**: Polite breadth-first crawl (concurrency 2, 400ms delay, depth ≤ 2, max 25 pages default) chunked into overlapping passages and indexed in `chrome.storage.session` (wiped when browser closes).
-- **Origin Consent Gate**: Explicit inline consent per domain (`Allow once` or `Always for site`) before any page context or tool fetch is sent.
-
-### 4. 🧠 Tailored Practice Assistant Modes
-- **Aptitude**: Quantitative, logical, and verbal problem solving with formula derivation, step-by-step arithmetic verification, and speed shortcuts.
-- **Coding**: Problem breakdown, brute-force to optimal derivation, formal Big-O analysis ($O(N)$, $O(1)$), runnable code with syntax highlighting, and edge case walkthroughs.
-- **Reasoning**: Syllogisms, arrangement diagrams, elimination grids, and contradiction proofs.
-- **General**: Versatile coding and engineering companion.
-- **Collapsible Thinking Accordion**: Live duration timer and streaming reasoning tokens for reasoning models (e.g. DeepSeek-R1, Nemotron).
-- **MathML Equation Support**: Clean, beautiful mathematical typesetting rendered with native MathML inside the Shadow Root.
-
-### 5. ⚡ NVIDIA NIM Integration & Reliability
-- Compatible with OpenAI format via `https://integrate.api.nvidia.com/v1`.
-- **Client-Side Token Bucket Rate Limiter**: 35 RPM token bucket with smooth visual queue notices and estimated countdown timers.
-- **Automatic Fallback Chain**: Gracefully cascades through your preferred backup models on HTTP 403, 404, 5xx, or 45s silence timeouts.
-- **Port Keep-Alive Pings**: Continuous background ping every 20s prevents Chrome service worker termination during extended reasoning and tool execution phases.
-
-### 4. 🧪 Autofill for Test Sites (QA & Developer Harness)
-- **Strictly for Authorized Testing**: A dedicated QA tool for developers building or testing assessment platforms.
-- **Never Submits**: Only clicks detected radio/checkbox options; cancels any form submit events; never triggers `form.submit()`, navigation links, or action buttons.
-- **No Human Mimicry**: Operates with clean, deterministic, fixed spacing (40–500ms) to allow page handlers to settle. Zero randomized delays, zero mouse simulation, zero evasion tricks.
-- **Robust Field Detection**: Scans native form controls (`<input>`, `<select>`, `<textarea>`), ARIA semantics (`role="radiogroup"`, `role="listbox"`), custom options, and code editors (Monaco, CodeMirror 5 & 6, Ace, contenteditable).
-- **Element Picker**: Interactive crosshair picker allows targeting tricky custom components with automatic parent question scoping.
-- **Dual Mode Proposals**:
-  - **Deterministic QA Fill**: Fill first, last, random, placeholder, or stress-test long answers without AI.
-  - **AI Model Proposals**: Batches questions (up to 8 non-code fields per request, single request per code field) to NVIDIA NIM with schema validation and strict JSON extraction.
-- **Full Transparency & Undo**: Displays a modal confirmation dialog before making any DOM changes. Shows a post-fill summary and provides an Undo button (for supported native text/select/checkbox controls).
+- [What is eX?](#what-is-ex)
+- [Why it exists](#why-it-exists)
+- [Screenshots & Visual Tour](#screenshots--visual-tour)
+- [Feature tour](#feature-tour)
+- [How it works](#how-it-works)
+- [The eX Score](#the-ex-score)
+- [Mail Guard (Gmail)](#mail-guard-gmail)
+- [Click-hijack & ad-redirect detector](#click-hijack--ad-redirect-detector)
+- [Site access monitor](#site-access-monitor)
+- [Vulnerability engine (localhost)](#vulnerability-engine-localhost)
+- [Face Lock](#face-lock)
+- [AI layer: one model per task](#ai-layer-one-model-per-task)
+- [OSINT & threat feeds](#osint--threat-feeds)
+- [Privacy design](#privacy-design)
+- [Threat model](#threat-model)
+- [How eX compares](#how-ex-compares)
+- [Install & run](#install--run)
+- [Configuration & API keys](#configuration--api-keys)
+- [Project structure](#project-structure)
+- [Testing & evaluation](#testing--evaluation)
+- [Known limitations](#known-limitations)
+- [Roadmap](#roadmap)
+- [Responsible use](#responsible-use)
+- [Author](#author)
 
 ---
 
-## 🔒 Security Architecture
+## What is eX?
 
-| # | Threat | Security Control & Enforcement Location |
-|---|---|---|
-| 1 | **Prompt Injection from Page Text** | Zero-width space tag neutralization (`neutralizeTags` in `safety.ts`), strict system prompt instructions, tool results wrapped in `<tool_result untrusted="true">`, read-only tools only. |
-| 2 | **URL Exfiltration / SSRF via Model** | Provenance URL registry (`UrlRegistry` in `urls.ts`): only collected URLs are resolvable; exact string resolution; same-origin enforcement; GET only; `link_id` preferred. |
-| 3 | **State-Changing GET Links (Logout/Delete)** | Blocklist regex (`isBlockedUrl` in `urls.ts`) evaluated on every fetch and redirect; crawl never overrides; manual "Fetch anyway" requires explicit user interaction. |
-| 4 | **Reading Sensitive / Account Pages** | Sensitive URL regex (`isSensitiveUrl` in `urls.ts`) triggers explicit user confirmation dialog; automated crawls silently skip sensitive URLs. |
-| 5 | **Credential & Token Leakage in URLs** | Automatic URL redaction (`redactUrl` in `urls.ts`) strips `token`, `key`, `auth`, `jwt` before sending to the model; registry resolves real targets privately. |
-| 6 | **Form Data Interception** | Form control values are never read; hidden inputs are ignored; structure outline only reports input names and field types. |
-| 7 | **Unauthorized Third-Party Data Transfer** | Origin consent gate (`consent.ts`), disabled by default in incognito (`isIncognito`), preview popover allows inspection before transmission. |
-| 8 | **Page Data Persistence** | Page text is never persisted in chat history databases (`chatStore.ts`); site indexes are stored strictly in volatile `chrome.storage.session`. |
-| 9 | **Hostile Site Hammering / Large Responses** | 300ms minimum inter-request spacing (`LIMITS.minGapMs`), concurrency capped at 2, 10s timeout, 2MB size cap, content-type allowlist, 429/503 exponential backoff. |
-| 10 | **Host Page Panel Spoofing / Tampering** | Content script runs inside a closed Shadow DOM (`{ mode: 'closed' }`); all extension communications use internal `chrome.runtime.Port`. |
-| 11 | **Runaway Tool Loops & Rate Limit Burn** | Max 6 tool calls per turn, max 3 rounds (`LIMITS.maxToolRounds`), 80,000 characters per turn budget, token bucket rate limiter. |
-| 12 | **Script Execution in Fetched HTML** | `DOMParser` parses HTML in an inert sandbox where scripts cannot execute; `<script>`, `<style>`, `<noscript>`, `<template>` nodes removed before extraction. |
-| 13 | **Autofill on Unauthorized / Proctored Sites** | Built-in immutable hard-deny list (`HARD_DENY_HOSTS` in `autofillPolicy.ts`) blocks assessment & proctoring platforms (HackerRank, Mettl, etc.). Custom sites require typing an exact authorization phrase. |
-| 14 | **Accidental or Malicious Form Submission** | Action control detection (`isActionControl` in `guards.ts`), `clickAllowed` guard, and event capture blocker (`withSubmitBlocked`). Submit buttons are never clicked. |
-| 15 | **Sensitive & Personal Input Interception** | Autofill scanner rejects passwords, credit cards, SSN, OTP, emails, telephone, and sensitive autocomplete attributes. |
-| 16 | **MAIN-World Code Injection** | Temporary random one-time cryptographic token (`crypto.getRandomValues`), executed via one-shot `chrome.scripting.executeScript` without persistent globals or bridges. Token attribute removed in `finally`. |
-| 17 | **Autofill Data Leakage & Retention** | Never persists questions, proposed answers, or code to storage. The audit log (`audit.ts`) records operational counts only. |
+**eX** is a Chrome extension that watches the places attackers actually reach you — your inbox, the sites you open, the permissions you grant, and the apps you build — and explains what it finds in plain language.
+
+It combines fast local rules, offline threat feeds, OSINT enrichment and LLM reasoning in an escalation ladder: cheap local checks first, network and AI only when a case is genuinely ambiguous. Every verdict comes with the evidence that produced it.
+
+> **eX is built around one idea:** a security tool should tell you *why*, not just show a number.
 
 ---
 
-## ⌨️ Keyboard Shortcuts
+## Why it exists
 
-| Shortcut | Action | Context |
-|---|---|---|
-| `Ctrl+Space` | Toggle / Open eX-AI Panel | Anywhere on any webpage |
-| `Ctrl+Shift+P` | Cycle Page Context Scope (Main/Full/Sel/Off) | Anywhere when panel is open |
-| `Alt+Shift+S` (Mac: `MacCtrl+Shift+S`) | Trigger Screen Snip OCR | Anywhere on any webpage |
-| `T` / `C` | Switch between Text & Code OCR modes | While snip selection is active |
-| `Esc` | Close panel or cancel snip | While panel or snip overlay is open |
-| `Enter` | Send chat prompt | When composer is focused |
-| `Shift+Enter` | Insert new line | When composer is focused |
+| Problem | What users get today | What eX does |
+| :--- | :--- | :--- |
+| **Phishing emails look perfect** | A generic "suspicious" banner (or nothing) | Scores every inbox row, deep-scans opened mail, shows the top reasons with signed contributions |
+| **Lookalike and malicious sites** | Blocklists that lag behind new domains | Local deception signals + reputation priors + OSINT + AI, per site, per tab |
+| **Sites that hijack clicks for ads** | Nothing | Detects clicks that open popups/redirects and invisible overlays, offers a one-click pop-up block |
+| **Silent camera/mic/location use** | Buried in browser settings | Live "in use" status with Allow/Block right in the panel |
+| **Dev apps with hidden bugs** | Heavy scanners (proxy, Docker, config) | Zero-setup passive checks + a safe, confirmed active scan of your own localhost apps, with AI-written fixes |
 
 ---
 
-## 🚀 Installation & Setup
+## Screenshots & Visual Tour
 
-### Prerequisites
-- Google Chrome (or Chromium-based browser: Brave, Edge, Opera, Vivaldi)
-- Node.js 20+ and npm
+<div align="center">
 
-### 1. Build from Source
+### Executive Defense Panel & Biometric Protection
+
+| Overview & Telemetry | On-Device Face Lock |
+| :---: | :---: |
+| <img src="docs/screenshots/overview.png" width="420" alt="eX Overview"/> | <img src="docs/screenshots/facelock.png" width="420" alt="Face Lock"/> |
+
+| Multi-Tenant Sandboxing & Safe Browsing Evaluation | Focus Command Center |
+| :---: | :---: |
+| <img src="docs/screenshots/safebrowsing_test.png" width="420" alt="Safe Browsing Verification"/> | <img src="docs/screenshots/dashboard.png" width="420" alt="Command Center"/> |
+
+</div>
+
+---
+
+## Feature tour
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🧠 Site Intelligence
+Every page gets an eX Score split into Safety, Privacy and Hardening, with confidence, evidence and an AI analysis that cites the exact signals it used.
+
+</td>
+<td width="50%" valign="top">
+
+### ✉️ Mail Guard (Gmail)
+Scans the first 50 Gmail inbox rows on load, then deep-scans each opened mail with ~70 features, local sender history, link intelligence and an LLM semantic pass.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 🕵️ Click-Hijack Detector
+Correlates real clicks with popups, redirects and invisible full-page overlays; shows a banner and can block pop-ups for the site.
+
+</td>
+<td valign="top">
+
+### 🎛️ Site Access Monitor
+Camera, Microphone, Location, Notifications, Downloads — current state, activity, and Allow/Block controls per site.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 🔬 Vulnerability Engine
+Passive checks on every site; a confirmation-based active scan restricted to localhost/private networks, with AI explanations and fix snippets, exportable as Markdown.
+
+</td>
+<td valign="top">
+
+### 🔐 Face Lock
+On-device facial verification gating chosen sites, with a hashed-PIN fallback and a management screen (add/remove sites, change password).
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 💬 AI Chat & Snip-to-Scan
+Right-edge chat panel; select any screen region, offline OCR extracts the text, and it can be scanned for scams or sent to the assistant.
+
+</td>
+<td valign="top">
+
+### 🧾 Explainability Everywhere
+Signals are weighted, shown, and traceable. Where the LLM isn't used, eX says "Local summary" — it never pretends.
+
+</td>
+</tr>
+</table>
+
+---
+
+## How it works
+
+```mermaid
+flowchart LR
+    A[Page / Email / Snip] --> B[Stage 1: Local features]
+    B --> C{Known-bad?}
+    C -- offline feed hit --> R[Verdict: Dangerous]
+    C -- no --> D{Borderline?}
+    D -- yes / Deep check --> E[Stage 3: OSINT enrichment]
+    D -- clearly fine --> F[Stage 4: LLM analysis]
+    E --> F
+    F --> G[Scoring + explanation]
+    B --> G
+    G --> H[Overview panel · badges · banners]
+```
+
+### Escalation ladder (cost and privacy aware):
+1. **Local features** — URL, page, headers, cookies, behaviour. Instant, zero network.
+2. **Offline feeds** — OpenPhish-style feeds and a bundled top-domains list matched locally, so no hostname leaves your machine.
+3. **OSINT** — RDAP, DNS, certificate transparency, Wayback, ASN. Only for borderline sites or when you press *Deep check*.
+4. **LLM analysis** — receives a compact evidence packet (never raw pages) and returns a structured, schema-validated analysis.
+
+> **Fresh per tab:** Analysis state is keyed by tab and navigation; navigating discards old state, late async replies from older navigations are dropped, and switching tabs shows that tab's own results.
+
+---
+
+## The eX Score
+
+The score separates *"is this site trying to deceive me?"* from *"is this site's configuration hardened?"* — because most legitimate sites miss some security headers, and that shouldn't make them untrustworthy to a visitor.
+
+| Score | Answers | Main inputs |
+| :--- | :--- | :--- |
+| **Safety** | Is it trying to phish, scam, deceive or infect me? | Reputation prior, deception signals, feeds, OSINT, click behaviour |
+| **Privacy** | How much does it track/fingerprint me? | Trackers, third parties, fingerprinting, session replay, ad networks |
+| **Hardening** | How well is the site itself secured? | CSP, HSTS, clickjacking protection, cookies, CORS, SRI |
+
+$$\text{eX Score} = 0.65 \times \text{Safety} + 0.25 \times \text{Privacy} + 0.10 \times \text{Hardening}$$
+*(with dynamic risk caps, never above 97)*
+
+### Safety model — transparent log-odds with a reputation prior:
+$$z = \text{prior}(\text{tier}) + \sum w_i \cdot x_i$$
+$$P_{\text{risk}} = \sigma(z) = \frac{1}{1 + e^{-z}}$$
+$$\text{Safety} = 100 \times (1 - P_{\text{risk}})$$
+
+- Priors come from popularity tier (bundled top-domains → Tranco rank tiers → unknown).
+- Weights are stored in editable JSON and can be calibrated on benchmark datasets.
+- Unknown signals contribute zero and reduce the displayed confidence (*"Based on N of 61 checks"*). Low coverage means limited-data warnings, not confident grades.
+- Hardening findings are context-weighted: they only matter for login/payment pages, session cookies, or localhost.
+- Shared hosting (e.g. `*.appspot.com`, `*.github.io`) is resolved with the Public Suffix List private section so a user subdomain never inherits the host's reputation.
+
+---
+
+## Mail Guard (Gmail)
+
+A layered classifier with **~70 features across 8 distinct groups**:
+
+| Group | Examples |
+| :--- | :--- |
+| **Sender identity** | Display-name/address mismatch, brand-in-name with unrelated domain, lookalike domains, reply-to mismatch |
+| **Authentication cues** | Gmail's own warning banners, SPF/DMARC existence |
+| **Language & intent** | Urgency, threats, credential/OTP/PIN requests, payment/KYC/UPI lures, prizes, secrecy, delivery fees, sextortion |
+| **Links** | Text-vs-href mismatch, redirector unwrapping, shorteners, IP/punycode hosts, login-like paths on foreign domains, feed hits |
+| **Attachments** | Executables, double extensions, HTML attachments, macro documents |
+| **HTML structure** | Hidden text, embedded forms, image-only mail, tracking pixels |
+| **QR / images** | Quishing: decoded QR URLs scored like links via offline worker |
+| **Context** | Local sender history (domain counters only), bulk-mail markers |
+
+- **Fusion:** deterministic features + LLM semantic features (category, impersonated entity, intent scores) → log-odds → probability → level (**High / Suspicious / Low-watch / Clean**) with top signed contributions shown to the user.
+- **Regional patterns:** Built-in heuristics for bank KYC, UPI/PhonePe/Paytm, Aadhaar/PAN, India Post/courier fee scams.
+- **Privacy:** Mail is analysed per message, never sent in full to the cloud, and redacted before any API call.
+
+---
+
+## Click-hijack & ad-redirect detector
+
+Some sites turn the whole page into an ad trigger. eX detects it by correlating three sources:
+1. **Click recorder (isolated world):** every trusted click, its target, and whether it was an actual link.
+2. **Page hooks (main world):** `window.open`, script-triggered anchor clicks, global click handlers.
+3. **Navigation correlation (service worker):** a new tab/redirect within ~1.5s of a click, to a different domain than the clicked link — or to a known ad/popunder network.
+4. **Overlay scan:** invisible, full-viewport, high-z-index click catchers.
+
+> False-positive guards skip legitimate `target=_blank` links, same-site navigation, OAuth/payment popups and downloads. When hijacking is confirmed, eX shows a banner, an AD badge, and a one-click **Block pop-ups on this site**.
+
+---
+
+## Site access monitor
+
+Five rows, one clear control each:
+
+| Capability | State | Activity | Control |
+| :--- | :--- | :--- | :--- |
+| 📷 **Camera** | Allowed / Blocked / Ask | In use / Idle | Allow · Block |
+| 🎙️ **Microphone** | Allowed / Blocked / Ask | In use / Idle | Allow · Block |
+| 📍 **Location** | Allowed / Blocked / Ask | In use / Idle | Allow · Block |
+| 🔔 **Notifications** | Allowed / Blocked / Ask | In use / Idle | Allow · Block |
+| 📥 **Downloads** | Allowed / Blocked / Ask | last download | Allow · Block |
+
+Controls use Chrome's `contentSettings` API per site; blocking also stops live tracks immediately. Capabilities the browser can't control (or incognito) are labelled honestly instead of showing fake buttons. A separate line displays when eX's own Face Lock camera is active.
+
+---
+
+## Vulnerability engine (localhost)
+
+Deterministic rules find and confirm bugs. The LLM only prioritises and explains. It never writes free-form exploits.
+
+**Stages:** passive harvest → stack fingerprint → declarative rule engine → AI endpoint ranking → safe differential probes → mandatory confirmation → scoring (CWE/OWASP mapping) → batched AI explanation with fixes.
+
+### Active probes (localhost/private IPs only, rate-limited, capped):
+- Exposed files (`.env`, `.git/HEAD`, backups, debug routes) with signature matching
+- Directory listing, verbose errors / stack traces
+- Reflected input via benign canary, with context classification
+- SQL error leakage and boolean differential checks (no time-based probes)
+- Open redirect, safe path-traversal probe
+- CORS origin reflection, dangerous HTTP methods
+- IDOR candidates listed for manual review, never exploited
+
+> A finding is only reported if a second probe with a fresh canary reproduces it and a control request does not. Reports export directly to Markdown.
+
+---
+
+## Face Lock
+
+- **On-device verification:** 512-dimensional face embeddings, cosine similarity, configurable threshold. Camera frames are never stored or sent anywhere.
+- **Gated sites you choose:** manage everything from the home panel: add/remove/edit sites, change password.
+- **PIN fallback:** after repeated failures; stored only as a salted PBKDF2 hash (SHA-256, 150k iterations).
+- **Explicit state machine:** `requesting` → `ready` → `loading model` → `scanning` → `matched` / `failed` / `denied` / `timeout` with Retry and Use password options.
+
+---
+
+## AI layer: one model per task
+
+All AI calls go through a single router to NVIDIA NIM (OpenAI-compatible endpoint). Each task uses a model suited to it, configured in `models.config.json`:
+
+| Task | Purpose | Model class | Default Model |
+| :--- | :--- | :--- | :--- |
+| `chat` | Assistant, page Q&A | Large general instruct | `meta/llama-3.1-70b-instruct` |
+| `mailBatch` | Fast triage of 50 inbox rows in 1–2 calls | Small fast instruct | `meta/llama-3.1-8b-instruct` |
+| `mailDeep` | Semantic features for an opened mail | Mid/large instruct | `meta/llama-3.1-70b-instruct` |
+| `sitePhish` | Compact site verdicts | Small/mid instruct | `meta/llama-3.1-8b-instruct` |
+| `vuln` | Endpoint ranking, explanations, fixes | Code-capable model | `meta/codellama-70b-instruct` |
+
+**Safety rails:** queue with concurrency limits and backoff, JSON-schema validation with retry, citation checks on AI analyses (must reference real evidence IDs), and graceful fallback to deterministic results.
+
+---
+
+## OSINT & threat feeds
+
+| Source | Used for |
+| :--- | :--- |
+| **RDAP** | Domain age, registrar, expiry |
+| **Google Public DNS (DoH)** | MX / SPF / DMARC / CAA, TTL, NS |
+| **Certificate Transparency** | First-seen certificate, SAN lookalikes (crt.sh / Cert Spotter) |
+| **Internet Archive** | Site history depth |
+| **RIPEstat** | ASN, hosting country |
+| **AlienVault OTX** | Threat-report pulses |
+| **Tranco** | Popularity tier (bundled top-100k for offline use) |
+| **OpenPhish-style feeds** | Offline, local matching |
+| **URLhaus / Safe Browsing** | Optional, bring-your-own free key |
+
+---
+
+## Privacy design
+
+- **Local-first:** rules, scoring, feeds and face verification run on your device.
+- **Cloud AI is opt-in, escalation-only, and receives redacted, compact evidence** (emails, phone numbers, tokens, card-like numbers removed; domains instead of addresses).
+- **"What is sent to AI" preview** in Settings shows the last payload per task.
+- **No analytics, no telemetry, no accounts;** one-click clear-all-data.
+- **Mail history** stores sender domains and counters only.
+
+---
+
+## Threat model
+
+| Threat (STRIDE) | Example | eX control |
+| :--- | :--- | :--- |
+| **Spoofing** | Lookalike login, fake sender, photo at face lock | URL/page/mail models, brand maps, PIN fallback, state machine |
+| **Tampering** | Form hijack, clipboard/click hijack | Form-action checks, click-hijack detector |
+| **Repudiation** | "What did it block?" | Local activity timeline |
+| **Information disclosure** | PII to cloud, key leakage | Redaction, consent, offline feeds, hostname-leak controls |
+| **Denial of service** | API rate limits | Local-first scoring, caching, backoff |
+| **Elevation of privilege** | Hostile page attacking the extension | Message validation, Shadow DOM, no `eval`, no `innerHTML` with untrusted data |
+| **Prompt injection** | "Ignore your rules" inside an email | Data-wrapping, schema-only outputs, citation validation |
+
+---
+
+## How eX compares
+
+| Tool | Approach | Strength | Trade-off |
+| :--- | :--- | :--- | :--- |
+| **OWASP ZAP** | Proxy + spider + scanners | Free, comprehensive, passive & active | Setup, slow active scans, SPA/auth friction |
+| **Nuclei** | Template engine | Fast, precise, huge template library | Tests given targets; no discovery |
+| **Nikto** | Server checks | Quick server misconfig audit | Not application-level |
+| **Phishing extensions** | Email/site classifiers | Convenient | Usually single-purpose, black-box verdicts |
+| **eX** | Browser-resident, tiered, explainable | Zero-setup, real logged-in session, bundles phishing + privacy + permissions + local-app scanning + biometrics | Smaller rule set than dedicated scanners; no network/TLS-level checks |
+
+---
+
+## Install & run
+
+### Requirements
+- **Node.js 18+**
+- **Chrome / Chromium** (recent)
+- **NVIDIA API key(s)** (free tier available at [build.nvidia.com](https://build.nvidia.com/))
+
 ```bash
-# 1. Clone the repository
-git clone https://github.com/callme-ADHI/eX-AI.git
-cd eX-AI
-
-# 2. Install dependencies
-npm ci
-
-# 3. Build production extension bundles
+git clone https://github.com/callme-ADHI/eX.git
+cd eX
+npm install
+cp background/keys.example.js background/keys.js # then add your keys
 npm run build
-
-# 4. Verify test suite (129 tests passing)
-npm run test
 ```
 
-### 2. Load Extension in Chrome
-1. Open Google Chrome and navigate to `chrome://extensions`.
-2. Toggle **Developer mode** on in the top-right corner.
-3. Click the **Load unpacked** button in the top-left corner.
-4. Select the `dist/` directory inside your cloned `eX-AI` folder.
-
-### 3. Add Your Free NVIDIA API Key
-1. Go to [build.nvidia.com/settings/api-keys](https://build.nvidia.com/settings/api-keys) and sign in.
-2. Generate your free personal API key (starts with `nvapi-`).
-3. Open the eX-AI panel (move your cursor to the right edge or press `Ctrl+Space`).
-4. Click **⚙️ Settings**, paste your key, and click **Save & Verify**.
-
-*(Note: NVIDIA free developer tier includes ~40 requests/minute across models for testing and development).*
+### Load in Chrome:
+1. Open `chrome://extensions`
+2. Enable **Developer mode** (top right)
+3. Click **Load unpacked**
+4. Select the `dist/` directory inside `eX`
+5. Pin the extension and configure your Face Lock password!
 
 ---
 
-## 🏗️ Architecture
+## Configuration & API keys
+
+```javascript
+// background/keys.js (gitignored — never commit)
+export const KEYS = {
+  KEY_1: "nvapi-...", // chat
+  KEY_2: "nvapi-...", // mail detection
+  KEY_3: "nvapi-...", // site analysis + vulnerability explanation
+};
+```
+
+One NVIDIA key works for all hosted models; separate keys just spread rate limits. Keys can also be configured and overridden directly inside the extension's Settings UI.
+
+```bash
+node tools/list-models.mjs       # list models your key can access
+node tools/ping-model.mjs chat   # test chat model task end-to-end
+node tools/check-osint.mjs       # test OSINT endpoint connectivity
+```
+
+---
+
+## Project structure
 
 ```
-eX-AI/
-├── dist/                      # Production extension package (load unpacked here)
-│   ├── background.js          # Service worker (rate limiter, stream client, tool loop, keep-alive)
-│   ├── content.js             # Closed shadow root, React UI, page extraction & tools
-│   ├── content.css            # Scoped panel styles
-│   ├── offscreen.html / .js   # Isolated Tesseract.js WASM worker environment
-│   └── manifest.json          # Chrome Manifest V3 manifest
-├── public/                    # Static assets & offline OCR models
-│   ├── manifest.json
-│   └── ocr/                   # Offline Tesseract WASM binaries & eng.traineddata
+eX/
+├── background/         # Service worker entry, keys, router, state, cache
+├── docs/screenshots/   # UI screenshots and walk-through captures
+├── public/             # Extension manifest, face-api models, OCR assets
 ├── src/
-│   ├── background/            # MV3 Service worker and background services
-│   │   ├── ai/                # NVIDIA client, toolLoop, toolCallAccumulator, rate limiter, SSE
-│   │   └── snip/              # Viewport capture and offscreen worker manager
-│   ├── content/               # Injected panel components & styles
-│   │   ├── SidePanel/         # Shadow DOM shell, ChatPanel, SnipOverlay, Drawers, BrowseMenu
-│   │   │   └── chat/          # PageChip, ConsentBar, ActivityLines, IndexSiteButton, Markdown
-│   │   └── pageText/          # DOM extract, links, structure, urls, fetchPage, sitemap, bm25, siteIndex
-│   ├── offscreen/             # Tesseract OCR Web Worker, image preprocessing
-│   └── shared/                # Types, safety helpers, toolDefs, system prompts, constants
-├── vite.config.ts             # Main build config
-├── vite.content.config.ts     # Content script IIFE & CSS inlining plugin
-├── vitest.config.ts           # Vitest configuration with JSDOM support
-└── README.md
+│   ├── background/     # Background orchestration, OSINT, permissions
+│   ├── content/        # UI panels, Shadow DOM injectors, hooks
+│   │   ├── SidePanel/  # Overview tab, permission monitor, tabs
+│   │   └── gmail/      # Mail Guard inbox & thread inspection
+│   └── detectors/      # Scoring engines, heuristics, PSL, vulnerability checks
+├── tests/              # E2E Puppeteer suites, mail corpus, unit tests
+├── tools/              # Model verification, test runners, benchmark scripts
+├── models.config.json  # Task-to-NVIDIA-model mappings
+└── vite.*.config.ts    # Bundling configurations for MV3 targets
 ```
 
 ---
 
-## 👨‍💻 Author
+## Testing & evaluation
 
-Created and built with ⚡ by **ADHI**  
-- **GitHub**: [@callme-ADHI](https://github.com/callme-ADHI)  
-- **Repository**: [https://github.com/callme-ADHI/eX-AI.git](https://github.com/callme-ADHI/eX-AI.git)
+```bash
+npm run build
+bash tools/verify.sh                          # Syntax, manifest, forbidden patterns, unit tests & E2E
+node --test tests/unit/distribution.test.js  # Score distribution checks
+node tools/eval-mail.mjs                      # Mail classifier evaluation suite
+```
+
+---
+
+## Responsible use
+
+- **Defensive purpose:** eX is engineered exclusively as a defensive security companion.
+- **Scope restriction:** The active vulnerability scanner is strictly confined to `localhost` and private RFC-1918 addresses behind explicit user confirmation dialogs.
+- **Responsible testing:** Always verify phishing indicators on safe reference testbeds (e.g. Google Safe Browsing test endpoints) rather than interacting with active malicious servers.
+
+---
+
+## Author
+
+**Adhithyakrishna R. (Adhi)**  
+B.Tech CSE (Cybersecurity), MITS Kochi  
+GitHub: [@callme-ADHI](https://github.com/callme-ADHI)
+
+*Built for an AI for Cybersecurity hackathon: practical threat modelling, vulnerability detection, phishing defense and privacy-preserving workflows.*
+
+<div align="center">
+
+**If eX helped you spot something suspicious, give it a ⭐!**
+
+</div>
