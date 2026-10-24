@@ -1,6 +1,6 @@
 /**
  * ─────────────────────────────────────────────────────────────────────────────
- *  eX — Lock Overlay Component (eX2 Parity + PBKDF2 Master Auth)
+ *  eX — Lock Overlay Component (Parity + PBKDF2 Master Auth)
  *  src/content/LockOverlay/LockOverlay.tsx
  *
  *  Full-viewport overlay injected into private-listed sites.
