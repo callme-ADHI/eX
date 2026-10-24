@@ -664,8 +664,11 @@ export default function SidePanel({
                     onStartSnip={triggerSnip}
                     onRunActiveScan={handleRunActiveScan}
                     onAskAIAboutPage={handleAskAIAboutPage}
+                    onTrustSite={handleTrustSite}
+                    onRescan={handleRescanSite}
                     isLocalhost={isLocalhost}
                     scanningActive={scanningActive}
+                    isMailPage={isWebmail}
                   />
                 )}
 

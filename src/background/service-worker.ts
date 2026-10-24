@@ -32,7 +32,7 @@ import { loadSettings } from './ai/settings';
 import { callModel, callModelJSON } from './router';
 import { getSettings, patchSettings, getTodayUsage } from './state';
 import { initFaceAuthEngine, verifyFace } from './faceAuthEngine';
-import { processSiteScan, processMailBatch, processMailDeep, runActiveScanForTab, getSiteVerdictForTab, getFindingsForTab, getMailSummaryForTab } from './orchestrator';
+import { processSiteScan, processMailBatch, processMailDeep, runActiveScanForTab, getSiteVerdictForTab, getFindingsForTab, getMailSummaryForTab, getSiteAssessmentForTab } from './orchestrator';
 
 // ─── Service Worker Entry Point ───────────────────────────────────────────────
 
@@ -234,6 +234,9 @@ async function handleMessage(msg: any, sender: chrome.runtime.MessageSender): Pr
 
     case 'GET_MAIL_SUMMARY':
       return getMailSummaryForTab((msg as any).tabId || sender.tab?.id);
+
+    case 'GET_SITE_ASSESSMENT':
+      return getSiteAssessmentForTab((msg as any).tabId || sender.tab?.id);
 
     case 'TRUST_SITE': {
       const hostname = (msg as any).hostname;

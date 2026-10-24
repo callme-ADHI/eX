@@ -7,6 +7,7 @@ import { scoreMail } from '../detectors/tier0-mail';
 import { runPassiveChecks, type Finding } from '../detectors/vuln-passive';
 import { isAllowedTarget, runLocalActiveScan } from '../detectors/vuln-active';
 import { getSitePhishPrompt, getMailBatchPrompt, getMailDeepPrompt } from '../prompts/site-phish';
+import { runComprehensiveAssessment, type SiteAssessment } from '../detectors/assessment';
 
 export interface SiteVerdict {
   id: string;
@@ -166,6 +167,12 @@ export async function processSiteScan(
     await setTabState(tabId, 'findings', [...passiveFindings, ...activeOnly]);
   }
 
+  // Comprehensive ~68-parameter site assessment
+  const assessment = runComprehensiveAssessment({ url, features, headers });
+  if (tabId) {
+    await setTabState(tabId, 'siteAssessment', assessment);
+  }
+
   return verdict;
 }
 
@@ -295,6 +302,11 @@ export async function getFindingsForTab(tabId: number): Promise<Finding[]> {
 
 export async function getMailSummaryForTab(tabId: number): Promise<any | null> {
   return (await getTabState(tabId, 'mailSummary')) || null;
+}
+
+export async function getSiteAssessmentForTab(tabId?: number): Promise<SiteAssessment | null> {
+  if (!tabId) return null;
+  return (await getTabState(tabId, 'siteAssessment')) || null;
 }
 
 function buildSafeVerdict(url: string, reason: string): SiteVerdict {
