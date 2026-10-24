@@ -259,9 +259,9 @@ export default function LockOverlay({ hostname, onUnlock }: LockOverlayProps) {
         {/* Header */}
         <div className="ex-lock-header">
           <div className="ex-lock-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <rect x="5" y="11" width="14" height="10" rx="2" />
-              <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" strokeWidth="1.75" style={{ width: 24, height: 24, minWidth: 24, minHeight: 24, flexShrink: 0 }}>
+              <rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="#a5b4fc" />
+              <path d="M8 11V7a4 4 0 0 1 8 0v4" fill="none" stroke="#a5b4fc" />
             </svg>
           </div>
           <div className="ex-lock-title">eX Face Lock</div>

@@ -21,7 +21,13 @@ function inlineContentCssPlugin(): Plugin {
       } catch (e) {
         console.warn('[inlineContentCssPlugin] could not read tokens.css:', e);
       }
-      const combinedCss = `${tokensCss}\n${contentCss}`;
+      let lockOverlayCss = '';
+      try {
+        lockOverlayCss = fs.readFileSync(resolve(__dirname, 'src/content/LockOverlay/LockOverlay.css'), 'utf8');
+      } catch (e) {
+        console.warn('[inlineContentCssPlugin] could not read LockOverlay.css:', e);
+      }
+      const combinedCss = `${tokensCss}\n${lockOverlayCss}\n${contentCss}`;
 
       for (const file of Object.values(bundle)) {
         if (file.type === 'chunk' && file.code) {

@@ -157,8 +157,17 @@ export async function handleFaceAuth(imageData: number[] | Uint8ClampedArray) {
       nearestSim = maxS;
     }
 
+    let activeThreshold = threshold;
+    try {
+      const s: any = await chrome.storage.local.get('settings');
+      const customThresh = s?.settings?.faceLock?.threshold;
+      if (typeof customThresh === 'number' && !isNaN(customThresh) && customThresh > 0) {
+        activeThreshold = customThresh;
+      }
+    } catch (_) {}
+
     const effectiveSimilarity = Math.max(meanSim, nearestSim);
-    const matched = effectiveSimilarity >= threshold;
+    const matched = effectiveSimilarity >= activeThreshold;
 
     return {
       ok: true,

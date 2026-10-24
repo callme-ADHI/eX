@@ -213,6 +213,14 @@ export interface AppSettings {
   shortcut: string;
   focusBlocklist: string[];
   searchEngine: string;
+  faceLock?: {
+    enabled?: boolean;
+    threshold?: number;
+    gatedSites?: string[];
+    pinHash?: string;
+    pinSalt?: string;
+    unlockMinutes?: number;
+  };
 }
 
 export interface ExtensionState {

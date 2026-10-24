@@ -10,42 +10,22 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import SidePanel from './SidePanel/SidePanel';
 import LockOverlay from './LockOverlay/LockOverlay';
+import lockOverlayCss from './LockOverlay/LockOverlay.css?raw';
 import { extractPageFeatures } from './page-features';
 import { startGmailObserver } from './gmail/gmail-scanner';
 import { initClickGuard } from './click-guard';
 
-// ─── Content Script ──────────────────────────────────────────────────────────
-// Key design principles:
-//  1. Randomised host id per page load — not discoverable by pattern.
-//  2. CLOSED shadow root — page scripts cannot read or tamper with panel content.
-//  3. Module-scope reference to shadow root (never read via host.shadowRoot).
-//  4. Guard against double-injection using a property on window in isolated world.
-//  5. pointer-events:none on host when CLOSED; only EdgeTrigger opts in.
-
-// Guard property — isolated content-script world, not visible to pages
 const INJECTION_GUARD = '__ex_injected__';
+const DEFAULT_PANEL_WIDTH = 420;
+let hostEl: HTMLDivElement | null = null;
+let shadowRootRef: ShadowRoot | null = null;
 
 function isSystemPage() {
   try {
-    const href = window.location.href;
-    return (
-      href.startsWith('chrome://') ||
-      href.startsWith('chrome-extension://') ||
-      href.startsWith('about:') ||
-      href.startsWith('devtools:') ||
-      href.startsWith('edge://')
-    );
-  } catch {
-    return true;
-  }
+    const h = window.location.href;
+    return h.startsWith('chrome://') || h.startsWith('chrome-extension://') || h.startsWith('about:') || h.startsWith('devtools:') || h.startsWith('edge://');
+  } catch { return true; }
 }
-
-// Single source of truth for panel width — Phase 2 uses 420px
-const DEFAULT_PANEL_WIDTH = 420;
-
-// Module-level refs so they survive across self-heal calls
-let hostEl: HTMLDivElement | null = null;
-let shadowRootRef: ShadowRoot | null = null;
 
 // Inlined styles placeholder replaced at build time by inlineContentCssPlugin
 const INLINED_STYLES = '__EXAI_INLINED_STYLES__';
@@ -97,16 +77,29 @@ async function initLockOverlay(): Promise<void> {
     container.id = LOCK_ROOT_ID;
     Object.assign(container.style, {
       position: 'fixed',
-      inset: '0',
+      top: '0',
+      left: '0',
+      right: '0',
+      bottom: '0',
+      width: '100vw',
+      height: '100vh',
       zIndex: '2147483647',
       pointerEvents: 'auto',
+      display: 'block',
+      margin: '0',
+      padding: '0',
     });
     parent.appendChild(container);
 
     const shadow = container.attachShadow({ mode: 'open' });
     const style = document.createElement('style');
-    style.textContent = `:host { all: initial; }\n${INLINED_STYLES}`;
+    style.textContent = lockOverlayCss;
     shadow.appendChild(style);
+
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = chrome.runtime.getURL('content.css');
+    shadow.appendChild(link);
 
     const mountPoint = document.createElement('div');
     mountPoint.style.height = '100%';
