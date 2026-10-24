@@ -1,6 +1,10 @@
 // ─── Offscreen Document Message Router ───────────────────────────────────────
 
 import { warmWorker, queueOCR, terminateWorker } from './ocrWorker';
+import { startInit, handleFaceAuth, getEngineStatus } from './faceAuthWorker';
+
+// Preload face model
+startInit();
 
 window.addEventListener('unload', () => {
   terminateWorker();
@@ -22,6 +26,18 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       .then((result) => sendResponse({ ok: true, data: result }))
       .catch((err) => sendResponse({ ok: false, error: String(err) }));
     return true;
+  }
+
+  if (msg.type === 'OFFSCREEN_FACE_AUTH') {
+    handleFaceAuth(msg.imageData)
+      .then((res) => sendResponse(res))
+      .catch((err) => sendResponse({ ok: false, error: String(err) }));
+    return true;
+  }
+
+  if (msg.type === 'OFFSCREEN_PING') {
+    sendResponse({ ok: true, ...getEngineStatus() });
+    return false;
   }
 
   if (msg.type === 'OCR_CLOSE') {

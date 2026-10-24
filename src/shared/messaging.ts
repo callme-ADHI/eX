@@ -40,7 +40,7 @@ export type Message =
   | { type: 'PATCH_SETTINGS'; patch: any }
   | { type: 'GET_TODAY_USAGE' }
   | { type: 'CHECK_SITE_GATED'; hostname: string }
-  | { type: 'VERIFY_FACE'; frameData: number[]; width: number; height: number };
+  | { type: 'FACE_AUTH_VERIFY'; imageData: number[] };
 
 export type MessageResponse<T = any> =
   | { ok: true; data: T }

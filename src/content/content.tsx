@@ -8,6 +8,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import SidePanel from './SidePanel/SidePanel';
+import LockOverlay from './LockOverlay/LockOverlay';
+import lockStyles from './LockOverlay/LockOverlay.css?inline';
 
 // ─── Content Script ──────────────────────────────────────────────────────────
 // Key design principles:
@@ -85,8 +87,72 @@ function applyHostSnipStyles(el: HTMLElement) {
   el.style.setProperty('overflow',       'hidden',       'important');
 }
 
+const LOCK_ROOT_ID = 'ex-lock-overlay-root';
+
+async function initLockOverlay(): Promise<void> {
+  if (isSystemPage()) return;
+  if (document.getElementById(LOCK_ROOT_ID)) return;
+
+  const hostname = window.location.hostname.replace(/^www\./, '');
+  if (!hostname) return;
+
+  try {
+    const res = await chrome.storage.local.get('settings');
+    const settings = (res?.settings || {}) as any;
+    const gatedSites: string[] = settings?.faceLock?.gatedSites || [];
+    if (!gatedSites.includes(hostname)) return;
+
+    const unlockMinutes = Number(settings?.faceLock?.unlockMinutes) || 15;
+    const sessionRes = await chrome.storage.session.get('unlocked:' + hostname);
+    const unlockedAt = Number(sessionRes?.['unlocked:' + hostname]);
+    if (unlockedAt && Date.now() - unlockedAt < unlockMinutes * 60 * 1000) {
+      return;
+    }
+
+    const parent = document.body || document.documentElement;
+    if (!parent) return;
+
+    const container = document.createElement('div');
+    container.id = LOCK_ROOT_ID;
+    Object.assign(container.style, {
+      position: 'fixed',
+      inset: '0',
+      zIndex: '2147483647',
+      pointerEvents: 'auto',
+    });
+    parent.appendChild(container);
+
+    const shadow = container.attachShadow({ mode: 'open' });
+    const style = document.createElement('style');
+    style.textContent = lockStyles;
+    shadow.appendChild(style);
+
+    const mountPoint = document.createElement('div');
+    mountPoint.style.height = '100%';
+    shadow.appendChild(mountPoint);
+
+    const root = createRoot(mountPoint);
+    root.render(
+      <React.StrictMode>
+        <LockOverlay
+          hostname={hostname}
+          onUnlock={() => {
+            root.unmount();
+            container.remove();
+          }}
+        />
+      </React.StrictMode>
+    );
+  } catch (err) {
+    console.warn('[eX] LockOverlay init error:', err);
+  }
+}
+
 function init() {
   if (isSystemPage()) return;
+
+  // Mount LockOverlay if site is gated
+  initLockOverlay();
 
   // Guard against double-injection (isolated world property)
   if ((window as any)[INJECTION_GUARD]) return;
