@@ -187,8 +187,8 @@ export default function PermissionMonitor({
       {confirmAllowCap && (
         <div style={{
           padding: '10px 12px',
-          background: '#161b22',
-          border: '1px solid #30363d',
+          background: '#0e0e14',
+          border: '1px solid #1a1a24',
           borderRadius: '6px',
           display: 'flex',
           flexDirection: 'column',
@@ -200,13 +200,13 @@ export default function PermissionMonitor({
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: 4 }}>
             <button
               onClick={() => setConfirmAllowCap(null)}
-              style={{ background: 'transparent', border: '1px solid #30363d', color: '#c9d1d9', padding: '3px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+              style={{ background: 'transparent', border: '1px solid #20202e', color: '#c9d1d9', padding: '3px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
             >
               Cancel
             </button>
             <button
               onClick={confirmAllow}
-              style={{ background: '#238636', border: '1px solid #2ea043', color: '#ffffff', padding: '3px 10px', borderRadius: '4px', fontWeight: 600, cursor: 'pointer', fontSize: '10px' }}
+              style={{ background: '#0b4528', border: '1px solid #00e59950', color: '#00e599', padding: '3px 10px', borderRadius: '4px', fontWeight: 600, cursor: 'pointer', fontSize: '10px' }}
             >
               Confirm
             </button>
@@ -229,14 +229,14 @@ export default function PermissionMonitor({
                 justifyContent: 'space-between',
                 minHeight: '42px',
                 padding: '7px 12px',
-                background: row.activeNow ? 'rgba(239, 68, 68, 0.06)' : '#0d1117',
-                border: row.activeNow ? '1px solid #7f1d1d' : '1px solid #21262d',
+                background: row.activeNow ? 'rgba(239, 68, 68, 0.06)' : '#08080c',
+                border: row.activeNow ? '1px solid #7f1d1d' : '1px solid #161620',
                 borderRadius: '6px',
               }}
             >
               {/* Left Column: Icon + Name & Status */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-                <span style={{ color: row.activeNow ? '#f87171' : '#8b949e', display: 'flex', alignItems: 'center' }}>
+                <span style={{ color: row.activeNow ? '#f87171' : '#707080', display: 'flex', alignItems: 'center' }}>
                   {getIconSvg(row.id)}
                 </span>
                 <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
@@ -255,10 +255,10 @@ export default function PermissionMonitor({
                         Active Stream
                       </span>
                     ) : (
-                      <span style={{ fontSize: '9.5px', color: '#6e7681' }}>Idle</span>
+                      <span style={{ fontSize: '9.5px', color: '#555566' }}>Idle</span>
                     )}
                   </div>
-                  <span style={{ fontSize: '9.5px', color: '#8b949e', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <span style={{ fontSize: '9.5px', color: '#707080', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {row.description}
                   </span>
                 </div>
@@ -274,9 +274,9 @@ export default function PermissionMonitor({
                   borderRadius: '3px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.03em',
-                  background: isAllowed ? 'rgba(56, 189, 248, 0.1)' : isBlocked ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.03)',
-                  color: isAllowed ? '#38bdf8' : isBlocked ? '#f87171' : '#8b949e',
-                  border: isAllowed ? '1px solid #38bdf840' : isBlocked ? '1px solid #ef444440' : '1px solid #30363d',
+                  background: isAllowed ? 'rgba(0, 229, 153, 0.08)' : isBlocked ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                  color: isAllowed ? '#00e599' : isBlocked ? '#f87171' : '#707080',
+                  border: isAllowed ? '1px solid #00e59940' : isBlocked ? '1px solid #ef444440' : '1px solid #20202e',
                 }}>
                   {isAllowed ? 'Allowed' : isBlocked ? 'Blocked' : 'Prompt'}
                 </span>
@@ -284,8 +284,8 @@ export default function PermissionMonitor({
                 {/* Segmented Control: Allow | Block */}
                 <div style={{
                   display: 'flex',
-                  background: '#161b22',
-                  border: '1px solid #30363d',
+                  background: '#0e0e14',
+                  border: '1px solid #20202e',
                   borderRadius: '4px',
                   overflow: 'hidden',
                 }}>
@@ -297,8 +297,8 @@ export default function PermissionMonitor({
                       padding: '3px 8px',
                       fontSize: '9.5px',
                       fontWeight: 600,
-                      background: isAllowed ? '#238636' : 'transparent',
-                      color: isAllowed ? '#ffffff' : '#8b949e',
+                      background: isAllowed ? '#0b4528' : 'transparent',
+                      color: isAllowed ? '#00e599' : '#707080',
                       border: 'none',
                       cursor: 'pointer',
                       transition: 'all 0.15s ease',
@@ -314,8 +314,8 @@ export default function PermissionMonitor({
                       padding: '3px 8px',
                       fontSize: '9.5px',
                       fontWeight: 600,
-                      background: isBlocked ? '#b91c1c' : 'transparent',
-                      color: isBlocked ? '#ffffff' : '#8b949e',
+                      background: isBlocked ? '#451010' : 'transparent',
+                      color: isBlocked ? '#f87171' : '#707080',
                       border: 'none',
                       cursor: 'pointer',
                       transition: 'all 0.15s ease',
