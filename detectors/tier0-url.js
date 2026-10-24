@@ -4,20 +4,11 @@
  */
 
 import { BRANDS, isTrustedDomain } from './topdomains.js';
+import { parseDomain } from './psl.js';
 
 const SUSPICIOUS_TLDS = new Set(['zip','mov','top','xyz','click','country','gq','tk','ml','cf','ga','work','support']);
 const SHORTENERS = new Set(['bit.ly','tinyurl.com','t.co','goo.gl','is.gd','cutt.ly','rb.gy','ow.ly','buff.ly']);
-
-/**
- * Extract registrable domain (eTLD+1 approximation).
- * @param {string} hostname
- * @returns {string}
- */
-function getRegistrableDomain(hostname) {
-  const parts = hostname.split('.');
-  if (parts.length <= 2) return hostname;
-  return parts.slice(-2).join('.');
-}
+const EXECUTABLE_EXTS = /\.(exe|msi|bat|cmd|scr|pif|application|gadget|hta|cpl|msc|jar|vbs|vbe|js|jse|ws|wsf|wsc|wsh|ps1|apk|dmg|pkg|iso|bin|deb|rpm|zip|rar|7z|tar|gz|bz2|xz)$/i;
 
 /**
  * Compute Shannon entropy of a string.
@@ -69,13 +60,21 @@ export function scoreSiteUrl(urlStr) {
   try { parsed = new URL(urlStr); } catch (_) { return { score: 0, reasons: [] }; }
 
   const hostname = parsed.hostname;
-  const registrableDomain = getRegistrableDomain(hostname);
-  const domainLabel = registrableDomain.split('.')[0];
-  const tld = registrableDomain.split('.').slice(-1)[0];
-  const subdomains = hostname.replace(`.${registrableDomain}`, '').split('.').filter(Boolean);
+  const parsedDomain = parseDomain(hostname);
+  const registrableDomain = parsedDomain.registrableDomain;
+  const domainLabel = parsedDomain.label;
+  const tld = parsedDomain.suffix;
+  const subdomains = parsedDomain.subdomain ? parsedDomain.subdomain.split('.').filter(Boolean) : [];
 
-  if (isTrustedDomain(registrableDomain) && !parsed.href.includes('@')) {
-    return { score: 0, reasons: [] };
+  // Check for executable extension in path
+  if (EXECUTABLE_EXTS.test(parsed.pathname)) {
+    score += 25;
+    reasons.push('Downloadable or executable file in URL path');
+  }
+
+  // Shared hosting domains (e.g. *.appspot.com, *.github.io) NEVER get whitelisted as trusted
+  if (!parsedDomain.isSharedHost && isTrustedDomain(registrableDomain) && !parsed.href.includes('@')) {
+    if (score === 0) return { score: 0, reasons: [] };
   }
 
   // IP address hostname

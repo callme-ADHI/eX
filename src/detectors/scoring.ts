@@ -16,9 +16,11 @@ import { evaluateHardening, type HardeningInputs, type HardeningResult } from '.
 export interface ComprehensiveInputs {
   url: string;
   tier?: DomainTier;
+  isSharedHost?: boolean;
   safety?: SafetySignals;
   privacy?: PrivacyInputs;
   hardening?: HardeningInputs;
+  coverage?: number;
 }
 
 export interface KeyFinding {
@@ -37,12 +39,19 @@ export interface ExScoreResult {
   hardening: HardeningResult;
   confidence: number; // 0..1
   confidenceText: string;
+  isLimitedData: boolean;
+  canClaimHighTrust: boolean;
   keyFindings: KeyFinding[];
   capsApplied: string[];
 }
 
+export function canClaimHighTrust(confidence: number, tier: DomainTier, isSharedHost: boolean = false): boolean {
+  return confidence >= 0.60 && (tier === 'T0' || tier === 'T1' || tier === 'T2') && !isSharedHost;
+}
+
 export function computeExScore(inputs: ComprehensiveInputs): ExScoreResult {
   const tier: DomainTier = inputs.tier || 'T4';
+  const isSharedHost = Boolean(inputs.isSharedHost);
   const safetyRes = evaluateSafety(tier, inputs.safety || {});
   const privacyRes = evaluatePrivacy(inputs.privacy || {});
   const hardeningRes = evaluateHardening(inputs.hardening || {});
@@ -72,6 +81,16 @@ export function computeExScore(inputs: ComprehensiveInputs): ExScoreResult {
     if (composite > 55) {
       composite = 55;
       capsApplied.push('Confirmed click-hijacking cap (<= 55)');
+    }
+  }
+
+  const confidence = inputs.coverage !== undefined ? inputs.coverage : safetyRes.confidence;
+
+  // Coverage shrinkage: if known-signal coverage < 30%, cap eX Score at 70
+  if (confidence < 0.30) {
+    if (composite > 70) {
+      composite = 70;
+      capsApplied.push('Limited data coverage cap (<= 70)');
     }
   }
 
@@ -137,8 +156,12 @@ export function computeExScore(inputs: ComprehensiveInputs): ExScoreResult {
   findings.sort((a, b) => b.weight - a.weight);
   const topFindings = findings.slice(0, 5);
 
-  const checksKnown = Math.round(safetyRes.confidence * 61);
-  const confidenceText = `Based on ${checksKnown} of 61 checks`;
+  const checksKnown = Math.round(confidence * 61);
+  const isLimitedData = confidence < 0.30;
+  const confidenceText = isLimitedData
+    ? `Limited data (${checksKnown} of 61 checks)`
+    : `Based on ${checksKnown} of 61 checks`;
+  const highTrustAllowed = canClaimHighTrust(confidence, tier, isSharedHost);
 
   return {
     exScore: finalExScore,
@@ -146,8 +169,10 @@ export function computeExScore(inputs: ComprehensiveInputs): ExScoreResult {
     safety: safetyRes,
     privacy: privacyRes,
     hardening: hardeningRes,
-    confidence: safetyRes.confidence,
+    confidence,
     confidenceText,
+    isLimitedData,
+    canClaimHighTrust: highTrustAllowed,
     keyFindings: topFindings,
     capsApplied,
   };

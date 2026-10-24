@@ -119,28 +119,27 @@ export default function OverviewTab({ siteVerdict, onTrustSite, onRescan, scanni
 
   const clickStats = assessment?.clickStats || { physicalClicks: 0, popupsBlocked: 0, overlaysDetected: 0 };
   const hasHijack = (clickStats.overlaysDetected || 0) > 0 || (clickStats.popupsBlocked || 0) > 0;
-  const facts = assessment?.facts || { domainAgeDays: 5200, dnssec: true, certCount: 28, trancoRank: 140, asn: 'AS13335 (US)' };
+  const facts = assessment?.facts || { domainAgeDays: null, dnssec: false, asn: null, isSharedHost: false, registrableDomain: currentHost };
 
   const formatAge = (days: number | null) => {
-    if (!days) return 'Age: Verified';
+    if (days === null || days === undefined) return null;
     if (days < 30) return `Age: ${days}d [NEW]`;
     const yrs = Math.floor(days / 365);
     return yrs > 0 ? `Age: ${yrs} yrs` : `Age: ${Math.floor(days / 30)} mos`;
   };
 
   const telemetryGauges = [
-    { label: 'Safety', score: ex.safety?.safetyScore ?? 88, sub: `pRisk <${Math.round((ex.safety?.pRisk ?? 0.04) * 100)}%` },
-    { label: 'Privacy', score: ex.privacy?.privacyScore ?? 82, sub: 'Zero Leaks' },
-    { label: 'Hardening', score: ex.hardening?.hardeningScore ?? 78, sub: 'TLS 1.3 Active' },
+    { label: 'Safety', score: ex.safety?.safetyScore ?? 0, sub: `pRisk: ${Math.round((ex.safety?.pRisk ?? 0) * 100)}%` },
+    { label: 'Privacy', score: ex.privacy?.privacyScore ?? 0, sub: `${ex.privacy?.deductions?.length || 0} deductions` },
+    { label: 'Hardening', score: ex.hardening?.hardeningScore ?? 0, sub: isHttps ? 'HTTPS' : 'Insecure' },
   ];
 
-  const osintChips = [
-    formatAge(facts.domainAgeDays),
-    `DNSSEC: ${facts.dnssec ? 'Active ✓' : 'Inactive'}`,
-    `Certs: ${facts.certCount || 1} logged`,
-    facts.trancoRank ? `Tranco #${facts.trancoRank}` : 'Enterprise Origin',
-    facts.asn || 'AS13335 (US)',
-  ];
+  const osintChips: string[] = [];
+  const ageStr = formatAge(facts.domainAgeDays);
+  if (ageStr) osintChips.push(ageStr);
+  if (facts.dnssec) osintChips.push('DNSSEC: Validated ✓');
+  if (facts.isSharedHost) osintChips.push('Shared Hosting');
+  if (facts.asn) osintChips.push(facts.asn);
 
   return (
     <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: 12, padding: '14px 16px', color: '#f4f4f5', fontSize: 12, scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.15) transparent' }}>
@@ -154,7 +153,7 @@ export default function OverviewTab({ siteVerdict, onTrustSite, onRescan, scanni
             <div style={{ fontWeight: 700, fontSize: 13, color: '#ffffff', letterSpacing: '-0.2px' }}>{currentHost}</div>
             <div style={{ fontSize: 10, color: isHttps ? '#00ffd2' : '#f59e0b', display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
               <span style={{ width: 5, height: 5, borderRadius: '50%', background: isHttps ? '#00ffd2' : '#f59e0b' }} />
-              {isHttps ? 'TLS 1.3 · AES-GCM Encrypted' : 'Unencrypted HTTP Connection'}
+              {isHttps ? 'HTTPS (Encrypted Connection)' : 'Unencrypted HTTP Connection'}
             </div>
           </div>
         </div>
@@ -212,14 +211,14 @@ export default function OverviewTab({ siteVerdict, onTrustSite, onRescan, scanni
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 11, color: '#f4f4f5', textTransform: 'uppercase' }}>
             <span style={{ color: '#818cf8' }}>⚡</span>
-            <span>{assessment?.isAiGenerated ? 'AI Security Assessment' : 'Real-Time Heuristic Defense'}</span>
+            <span>{assessment?.isAiGenerated ? 'AI Security Assessment' : 'Local Summary'}</span>
           </div>
           <span style={{ fontSize: 9, background: 'rgba(99,102,241,0.18)', color: '#c7d2fe', padding: '2px 7px', borderRadius: 4, fontWeight: 600, border: '1px solid rgba(99,102,241,0.3)' }}>
-            {assessment?.isAiGenerated ? 'NVIDIA NIM' : 'Active Defense'}
+            {assessment?.isAiGenerated ? 'NVIDIA NIM' : 'Rule Engine'}
           </span>
         </div>
         <p style={{ margin: 0, fontSize: 11, lineHeight: 1.55, color: '#d4d4d8' }}>
-          {assessment?.summaryText || (ex.exScore >= 80 ? `Authentic enterprise infrastructure verified for ${currentHost}. TLS configuration, identity records, and reputation align with legitimate operations.` : `Caution advised on ${currentHost}. Anomalous structural or policy signals detected across evaluation layers.`)}
+          {assessment?.summaryText || (ex.isLimitedData ? `Limited data available on ${currentHost}; only ${Math.round((ex.confidence || 0) * 61)} of 61 checks evaluated.` : `Real-time security analysis complete for ${currentHost}.`)}
         </p>
       </div>
 

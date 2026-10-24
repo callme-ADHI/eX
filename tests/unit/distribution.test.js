@@ -19,6 +19,7 @@ test('12-profile distribution satisfies eX scoring spread assertions', () => {
       safety: raw.safety,
       privacy: raw.privacy,
       hardening: raw.hardening,
+      coverage: raw.coverage ?? 0.85,
     });
     results.push({ name: raw.name, ...res });
   }

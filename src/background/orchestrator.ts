@@ -172,6 +172,7 @@ export async function processSiteScan(
   const clickStats = tabId ? (await getTabState(tabId, 'clickStats')) || {} : {};
   const pipeline = await runSitePipeline(url, features, headers, clickStats, {
     triggerDeep: (payload as any).triggerDeep,
+    safeBrowsingKey: (settings as any).safeBrowsingKey,
     aiCaller: async (prompt) => {
       const res = await callModelJSON('siteAnalyze', [{ role: 'user', content: prompt }], 'siteAnalyze');
       return res?.summary || res?.narrative || (typeof res === 'string' ? res : '');

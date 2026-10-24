@@ -221,6 +221,7 @@ export interface AppSettings {
     pinSalt?: string;
     unlockMinutes?: number;
   };
+  safeBrowsingKey?: string;
 }
 
 export interface ExtensionState {

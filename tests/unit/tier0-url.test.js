@@ -56,4 +56,9 @@ assert.strictEqual(t10.score, 0);
 const t11 = scoreSiteUrl('not-a-valid-url');
 assert.strictEqual(t11.score, 0);
 
+// 12. Executable download on shared host (regression check)
+const t12 = scoreSiteUrl('https://testsafebrowsing.appspot.com/s/content.exe');
+assert.ok(t12.score >= 20);
+assert.ok(t12.reasons.some(r => r.includes('executable')));
+
 console.log('✓ All tier0-url tests passed.');

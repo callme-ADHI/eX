@@ -16,6 +16,7 @@ const DEFAULT_SETTINGS = {
     threshold: 0.5,
     unlockMinutes: 15,
   },
+  safeBrowsingKey: "",
   trustedHostnames: [],
 };
 

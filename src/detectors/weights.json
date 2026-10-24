@@ -36,6 +36,7 @@
     "missing_spf_dmarc_on_brand": 0.6,
     "offline_feed_hit": 6.0,
     "safe_browsing_hit": 5.0,
+    "downloadable_executable_resource": 2.0,
     "hsts_with_login": -0.3,
     "strict_dmarc_spf": -0.4,
     "cert_seen_over_1y": -0.4

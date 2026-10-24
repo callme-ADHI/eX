@@ -43,6 +43,7 @@ export interface SafetySignals {
   missing_spf_dmarc_on_brand?: boolean;
   offline_feed_hit?: boolean;
   safe_browsing_hit?: boolean;
+  downloadable_executable_resource?: boolean;
   hsts_with_login?: boolean;
   strict_dmarc_spf?: boolean;
   cert_seen_over_1y?: boolean;
@@ -111,13 +112,19 @@ export function evaluateSafety(tier: DomainTier, signals: SafetySignals): Safety
 
     knownWeight += absWeight;
 
+    const signalName =
+      featKey === 'downloadable_executable_resource' ? 'Downloadable/executable resource' :
+      featKey === 'safe_browsing_hit' ? 'Google Safe Browsing hit' :
+      featKey === 'offline_feed_hit' ? 'Threat feed listing' :
+      featKey.replace(/_/g, ' ');
+
     if (typeof rawVal === 'number') {
       if (rawVal > 0) {
         const contribution = weight * Math.min(1.0, Math.max(0, rawVal));
         z += contribution;
         triggeredSignals.push({
           id: featKey,
-          name: featKey.replace(/_/g, ' '),
+          name: signalName,
           weight: contribution,
           value: rawVal,
         });
@@ -126,12 +133,12 @@ export function evaluateSafety(tier: DomainTier, signals: SafetySignals): Safety
       z += weight;
       triggeredSignals.push({
         id: featKey,
-        name: featKey.replace(/_/g, ' '),
+        name: signalName,
         weight,
         value: 1,
       });
     } else if (rawVal === false && weight > 1.5) {
-      clearSignals.push(`No ${featKey.replace(/_/g, ' ')}`);
+      clearSignals.push(`No ${signalName}`);
     }
   }
 
