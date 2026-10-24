@@ -52,8 +52,9 @@ async function initLockOverlay(): Promise<void> {
   if (isSystemPage()) return;
   if (document.getElementById(LOCK_ROOT_ID)) return;
 
-  const hostname = window.location.hostname.replace(/^www\./, '');
-  if (!hostname) return;
+  const currentHost = window.location.hostname.toLowerCase().replace(/^www\./, '');
+  const currentUrl = window.location.href.toLowerCase();
+  if (!currentHost) return;
 
   try {
     const res = await chrome.storage.local.get(['settings', 'facelock:privateSites']);
@@ -61,14 +62,15 @@ async function initLockOverlay(): Promise<void> {
     const directSites: string[] = (res?.['facelock:privateSites'] as string[]) || [];
     const settingsSites: string[] = settings?.faceLock?.gatedSites || [];
     const gatedSites = Array.from(new Set([...directSites, ...settingsSites]));
-    if (!gatedSites.includes(hostname)) return;
 
-    const unlockMinutes = Number(settings?.faceLock?.unlockMinutes) || 15;
-    const sessionRes = await chrome.storage.session.get('unlocked:' + hostname);
-    const unlockedAt = Number(sessionRes?.['unlocked:' + hostname]);
-    if (unlockedAt && Date.now() - unlockedAt < unlockMinutes * 60 * 1000) {
-      return;
-    }
+    const isGated = gatedSites.some((raw) => {
+      if (!raw || typeof raw !== 'string') return false;
+      const clean = raw.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/^www\./, '');
+      if (!clean) return false;
+      return currentHost === clean || currentHost.endsWith('.' + clean) || currentUrl.includes(clean);
+    });
+
+    if (!isGated) return;
 
     const parent = document.body || document.documentElement;
     if (!parent) return;
@@ -109,7 +111,7 @@ async function initLockOverlay(): Promise<void> {
     root.render(
       <React.StrictMode>
         <LockOverlay
-          hostname={hostname}
+          hostname={currentHost}
           onUnlock={() => {
             root.unmount();
             container.remove();
