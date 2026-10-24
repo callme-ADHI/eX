@@ -654,7 +654,7 @@ export default function SidePanel({
 
             {/* ── Tab content ── */}
             <PanelErrorBoundary>
-              <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                 {activeTab === 'overview' && (
                   <OverviewTab
                     siteVerdict={siteVerdict}

@@ -67,7 +67,6 @@ function applyHostSnipStyles(el: HTMLElement) {
 }
 
 const LOCK_ROOT_ID = 'ex-lock-overlay-root';
-const lockStyles = '*{box-sizing:border-box;} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}';
 
 async function initLockOverlay(): Promise<void> {
   if (isSystemPage()) return;
@@ -106,7 +105,7 @@ async function initLockOverlay(): Promise<void> {
 
     const shadow = container.attachShadow({ mode: 'open' });
     const style = document.createElement('style');
-    style.textContent = lockStyles;
+    style.textContent = `:host { all: initial; }\n${INLINED_STYLES}`;
     shadow.appendChild(style);
 
     const mountPoint = document.createElement('div');

@@ -1,15 +1,12 @@
 /**
  * ─────────────────────────────────────────────────────────────────────────────
- *  eX — Lock Overlay Component (Parity + PBKDF2 Master Auth)
+ *  eX — Lock Overlay Component (PBKDF2 Master Auth + FaceNet Fallback)
  *  src/content/LockOverlay/LockOverlay.tsx
- *
- *  Full-viewport overlay injected into private-listed sites.
- *  Uses pure Canvas 2D center-crop (zero-dependency) with FaceNet ONNX
- *  inference running in the offscreen document.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import './LockOverlay.css';
 import type { FaceAuthResult } from '../../background/faceAuthEngine';
 import { verifyPin, hashPin } from '../../face/pin';
 
@@ -19,12 +16,8 @@ export interface LockOverlayProps {
 }
 
 type OverlayState = 'loading' | 'requesting_camera' | 'verifying' | 'password' | 'create_password' | 'error';
-
-const FACE_VERIFY_TIMEOUT_MS = 10_000;
-const VERIFY_POLL_INTERVAL_MS = 800;
-const FACE_CROP_SIZE = 160;
-const CENTER_CROP_FRAC = 0.65;
-const CAMERA_ACQUIRE_TIMEOUT_MS = 10_000;
+const FACE_VERIFY_TIMEOUT_MS = 10_000, VERIFY_POLL_INTERVAL_MS = 800;
+const FACE_CROP_SIZE = 160, CENTER_CROP_FRAC = 0.65, CAMERA_ACQUIRE_TIMEOUT_MS = 8_000;
 
 export default function LockOverlay({ hostname, onUnlock }: LockOverlayProps) {
   const [state, setState] = useState<OverlayState>('loading');
@@ -48,9 +41,7 @@ export default function LockOverlay({ hostname, onUnlock }: LockOverlayProps) {
     if (pollRef.current) clearInterval(pollRef.current);
     if (verifyTimerRef.current) clearTimeout(verifyTimerRef.current);
     if (cameraTimeoutRef.current) clearTimeout(cameraTimeoutRef.current);
-    pollRef.current = null;
-    verifyTimerRef.current = null;
-    cameraTimeoutRef.current = null;
+    pollRef.current = null; verifyTimerRef.current = null; cameraTimeoutRef.current = null;
     hasStartedScanningRef.current = false;
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
@@ -82,7 +73,6 @@ export default function LockOverlay({ hostname, onUnlock }: LockOverlayProps) {
   const captureCenterCrop = useCallback((videoEl: HTMLVideoElement): number[] | null => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
-
     const vw = videoEl.videoWidth;
     const vh = videoEl.videoHeight;
     if (!vw || !vh) return null;
@@ -96,30 +86,22 @@ export default function LockOverlay({ hostname, onUnlock }: LockOverlayProps) {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     if (!ctx) return null;
 
-    ctx.drawImage(
-      videoEl,
-      sx, sy, cropDimension, cropDimension,
-      0, 0, FACE_CROP_SIZE, FACE_CROP_SIZE
-    );
-
+    ctx.drawImage(videoEl, sx, sy, cropDimension, cropDimension, 0, 0, FACE_CROP_SIZE, FACE_CROP_SIZE);
     const imageData = ctx.getImageData(0, 0, FACE_CROP_SIZE, FACE_CROP_SIZE);
     return Array.from(imageData.data);
   }, []);
 
   const startVerification = useCallback((videoEl: HTMLVideoElement) => {
     setState('verifying');
-    setStatusMsg('Loading face model… please wait');
+    setStatusMsg('Loading facial recognition model…');
     hasStartedScanningRef.current = false;
 
     verifyTimerRef.current = setTimeout(() => {
-      console.log('[eX FaceLock] Safety timeout expired');
       showPasswordFallback();
-    }, 60_000);
+    }, 45_000);
 
     pollRef.current = setInterval(async () => {
-      if (unlockedRef.current) return;
-      if (videoEl.readyState < 2) return;
-
+      if (unlockedRef.current || videoEl.readyState < 2) return;
       const rgba = captureCenterCrop(videoEl);
       if (!rgba) return;
 
@@ -131,53 +113,84 @@ export default function LockOverlay({ hostname, onUnlock }: LockOverlayProps) {
 
         if (response?.ok) {
           const result: FaceAuthResult = response.data;
-
           if (!result.ready && !result.error) {
             setStatusMsg('Loading face model… please wait');
             return;
           }
-
           if (!result.ready && result.error) {
-            console.error('[eX FaceLock] FaceAuthEngine hard error:', result.error);
             setState('error');
-            setStatusMsg(`Security Engine error: ${result.error}`);
+            setStatusMsg(`Model error: ${result.error}`);
             if (pollRef.current) clearInterval(pollRef.current);
             return;
           }
-
           if (result.ready && !hasStartedScanningRef.current) {
             hasStartedScanningRef.current = true;
             if (verifyTimerRef.current) clearTimeout(verifyTimerRef.current);
             verifyTimerRef.current = setTimeout(() => {
-              console.log('[eX FaceLock] Face verification timed out after 10s of scanning');
               showPasswordFallback();
             }, FACE_VERIFY_TIMEOUT_MS);
           }
-
-          if (result.error) {
-            console.warn('[eX FaceLock] Inference error (will retry):', result.error);
-            return;
-          }
+          if (result.error) return;
 
           setSimilarity(result.similarity);
-
           if (result.matched) {
             setStatusMsg('Identity confirmed ✓');
             setTimeout(unlock, 350);
           } else {
-            setStatusMsg(`Scanning… (score: ${result.similarity.toFixed(2)})`);
+            setStatusMsg(`Scanning… (match: ${result.similarity.toFixed(2)})`);
           }
         }
       } catch (e) {
-        console.warn('[eX FaceLock] Verify poll error:', e);
+        console.warn('[eX FaceLock] Poll error:', e);
       }
     }, VERIFY_POLL_INTERVAL_MS);
   }, [captureCenterCrop, showPasswordFallback, unlock]);
 
-  useEffect(() => {
-    let cancelled = false;
+  const initCamera = useCallback(async () => {
+    try {
+      setState('requesting_camera');
+      setStatusMsg('Requesting camera access…');
 
-    // Load stored settings and PIN
+      cameraTimeoutRef.current = setTimeout(() => {
+        showPasswordFallback();
+      }, CAMERA_ACQUIRE_TIMEOUT_MS);
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+        audio: false,
+      });
+
+      if (cameraTimeoutRef.current) clearTimeout(cameraTimeoutRef.current);
+      streamRef.current = stream;
+      const video = videoRef.current;
+      if (!video) {
+        showPasswordFallback();
+        return;
+      }
+
+      video.srcObject = stream;
+      await video.play();
+
+      await new Promise<void>((resolve) => {
+        if (video.readyState >= 2) { resolve(); return; }
+        video.onloadeddata = () => resolve();
+        setTimeout(resolve, 1500);
+      });
+
+      startVerification(video);
+    } catch (err: any) {
+      if (cameraTimeoutRef.current) clearTimeout(cameraTimeoutRef.current);
+      if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
+        setState('error');
+        setStatusMsg('Camera access was denied.');
+      } else {
+        setState('error');
+        setStatusMsg(`Camera error: ${err?.message || 'Unable to access camera'}`);
+      }
+    }
+  }, [showPasswordFallback, startVerification]);
+
+  useEffect(() => {
     chrome.storage.local.get(['settings', 'facelock:pin'], (res: { [key: string]: any }) => {
       const s = res?.settings as any;
       if (s?.faceLock?.pinHash) {
@@ -187,69 +200,9 @@ export default function LockOverlay({ hostname, onUnlock }: LockOverlayProps) {
       }
     });
 
-    const init = async () => {
-      try {
-        setState('requesting_camera');
-        setStatusMsg('Requesting camera access…');
-
-        cameraTimeoutRef.current = setTimeout(() => {
-          if (!cancelled && state === 'requesting_camera') {
-            console.warn('[eX FaceLock] Camera acquisition timed out');
-            showPasswordFallback();
-          }
-        }, CAMERA_ACQUIRE_TIMEOUT_MS);
-
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
-          audio: false,
-        });
-
-        if (cameraTimeoutRef.current) clearTimeout(cameraTimeoutRef.current);
-
-        if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
-          return;
-        }
-
-        streamRef.current = stream;
-        const video = videoRef.current;
-        if (!video) {
-          showPasswordFallback();
-          return;
-        }
-
-        video.srcObject = stream;
-        await video.play();
-        if (cancelled) return;
-
-        await new Promise<void>((resolve) => {
-          if (video.readyState >= 2) { resolve(); return; }
-          video.onloadeddata = () => resolve();
-          setTimeout(resolve, 1500);
-        });
-
-        if (cancelled) return;
-        startVerification(video);
-      } catch (err: any) {
-        if (cancelled) return;
-        if (cameraTimeoutRef.current) clearTimeout(cameraTimeoutRef.current);
-        if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
-          showPasswordFallback();
-        } else {
-          console.error('[eX FaceLock] Camera init error:', err);
-          setState('error');
-          setStatusMsg(`Camera error: ${err?.message ?? err}`);
-        }
-      }
-    };
-
-    init();
-
-    return () => {
-      cancelled = true;
-      cleanup();
-    };
-  }, [cleanup, showPasswordFallback, startVerification]);
+    initCamera();
+    return () => cleanup();
+  }, [cleanup, initCamera]);
 
   const handlePasswordSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -258,13 +211,12 @@ export default function LockOverlay({ hostname, onUnlock }: LockOverlayProps) {
       showPasswordFallback();
       return;
     }
-
     const valid = await verifyPin(password, storedPinRef.current.pinHash, storedPinRef.current.pinSalt);
     if (valid) {
       setStatusMsg('Unlocked ✓');
       setTimeout(unlock, 250);
     } else {
-      setPwError('Incorrect password. Try again.');
+      setPwError('Incorrect master password.');
       setPassword('');
     }
   }, [password, showPasswordFallback, unlock]);
@@ -284,96 +236,97 @@ export default function LockOverlay({ hostname, onUnlock }: LockOverlayProps) {
     try {
       const { pinHash, pinSalt } = await hashPin(password);
       storedPinRef.current = { pinHash, pinSalt };
-
       const res = await chrome.storage.local.get('settings');
       const current = (res.settings || {}) as any;
       const updated = {
         ...current,
-        faceLock: {
-          ...(current.faceLock || {}),
-          enabled: true,
-          pinHash,
-          pinSalt,
-        },
+        faceLock: { ...(current.faceLock || {}), enabled: true, pinHash, pinSalt },
       };
-      await chrome.storage.local.set({
-        settings: updated,
-        'facelock:pin': { pinHash, pinSalt },
-      });
-      setStatusMsg('Password set ✓');
+      await chrome.storage.local.set({ settings: updated, 'facelock:pin': { pinHash, pinSalt } });
+      setStatusMsg('Master password configured ✓');
       setTimeout(unlock, 350);
     } catch (err: any) {
       setPwError('Failed to save password: ' + err.message);
     }
   }, [confirmPassword, password, unlock]);
 
-  const isCamActive = state !== 'password' && state !== 'create_password';
+  const isCamActive = state === 'verifying' || state === 'requesting_camera' || state === 'loading';
 
   return (
     <div className="ex-lock-overlay" id="ex-lock-overlay-root">
       <div className="ex-lock-backdrop" />
-
       <div className="ex-lock-card">
         {/* Header */}
         <div className="ex-lock-header">
           <div className="ex-lock-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
               <rect x="5" y="11" width="14" height="10" rx="2" />
               <path d="M8 11V7a4 4 0 0 1 8 0v4" />
             </svg>
           </div>
-          <div className="ex-lock-title">Private Site</div>
+          <div className="ex-lock-title">eX Face Lock</div>
           <div className="ex-lock-domain">{hostname}</div>
         </div>
 
-        {/* Camera view rendered whenever not in password modes */}
+        {/* Camera Viewfinder */}
         {isCamActive && (
           <div className="ex-lock-camera-wrap">
-            <video
-              ref={videoRef}
-              className="ex-lock-video"
-              autoPlay
-              muted
-              playsInline
-            />
-            {/* Center-crop target guide */}
+            <video ref={videoRef} className="ex-lock-video" autoPlay muted playsInline />
             <div className="ex-lock-face-guide" />
-
-            {/* Corner frame decorations */}
             <div className="ex-lock-corner ex-lock-corner--tl" />
             <div className="ex-lock-corner ex-lock-corner--tr" />
             <div className="ex-lock-corner ex-lock-corner--bl" />
             <div className="ex-lock-corner ex-lock-corner--br" />
-
-            {/* Scan line animation */}
             {state === 'verifying' && <div className="ex-lock-scanline" />}
-
-            {/* Debug similarity readout */}
             {similarity !== null && (
-              <div className="ex-lock-sim-debug">
-                sim: {similarity.toFixed(4)}
-              </div>
+              <div className="ex-lock-sim-debug">sim: {similarity.toFixed(4)}</div>
             )}
           </div>
         )}
 
-        {/* Hidden canvas for face cropping */}
+        {/* Camera Error View */}
+        {state === 'error' && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '16px 8px', width: '100%' }}>
+            <div style={{ fontSize: 32 }}>⚠️</div>
+            <div style={{ fontSize: 13, color: '#fca5a5', textAlign: 'center', fontWeight: 500 }}>
+              {statusMsg}
+            </div>
+            <button
+              type="button"
+              className="ex-lock-pw-btn"
+              onClick={showPasswordFallback}
+              style={{ marginTop: 6 }}
+            >
+              Unlock with Master Password
+            </button>
+            <button
+              type="button"
+              className="ex-lock-try-face-btn"
+              onClick={() => initCamera()}
+            >
+              Retry Camera Access
+            </button>
+          </div>
+        )}
+
         <canvas ref={canvasRef} style={{ display: 'none' }} />
 
-        {/* Status message */}
-        <div className={`ex-lock-status ex-lock-status--${state}`}>
-          {(state === 'loading' || state === 'requesting_camera') && <span className="ex-lock-spinner" />}
-          {state === 'verifying' && <span className="ex-lock-pulse-dot" />}
-          <span>{statusMsg}</span>
-        </div>
+        {/* Status Line */}
+        {state !== 'error' && (
+          <div className={`ex-lock-status ex-lock-status--${state}`}>
+            {(state === 'loading' || state === 'requesting_camera') && <span className="ex-lock-spinner" />}
+            {state === 'verifying' && <span className="ex-lock-pulse-dot" />}
+            <span>{statusMsg}</span>
+          </div>
+        )}
 
-        {/* Password fallback form */}
+        {/* Password Fallback Form */}
         {state === 'password' && (
           <form className="ex-lock-pw-form" onSubmit={handlePasswordSubmit}>
             <input
               id="ex-lock-password-input"
               type="password"
-              placeholder="Enter password"
+              placeholder="Enter master password"
               value={password}
               onChange={(e) => { setPassword(e.target.value); setPwError(''); }}
               className="ex-lock-pw-input"
@@ -382,23 +335,19 @@ export default function LockOverlay({ hostname, onUnlock }: LockOverlayProps) {
             />
             {pwError && <div className="ex-lock-pw-error" role="alert">{pwError}</div>}
             <button id="ex-lock-password-submit" type="submit" className="ex-lock-pw-btn">
-              Unlock
+              Unlock Site
             </button>
             <button
               type="button"
               className="ex-lock-try-face-btn"
-              onClick={() => {
-                setPwError('');
-                setPassword('');
-                window.location.reload();
-              }}
+              onClick={() => { setPwError(''); setPassword(''); initCamera(); }}
             >
-              Try face again
+              Try face recognition again
             </button>
           </form>
         )}
 
-        {/* Create password initial setup */}
+        {/* Create Password Setup */}
         {state === 'create_password' && (
           <form className="ex-lock-pw-form" onSubmit={handleCreatePasswordSubmit}>
             <input
@@ -425,6 +374,7 @@ export default function LockOverlay({ hostname, onUnlock }: LockOverlayProps) {
           </form>
         )}
 
+        {/* Fallback link when camera is active */}
         {isCamActive && (
           <button
             type="button"
@@ -432,13 +382,12 @@ export default function LockOverlay({ hostname, onUnlock }: LockOverlayProps) {
             onClick={showPasswordFallback}
             style={{ fontSize: '11px', opacity: 0.8 }}
           >
-            Use password fallback
+            Use master password instead
           </button>
         )}
 
-        {/* Footer */}
         <div className="ex-lock-footer">
-          Secured by eX Facial Lock
+          Secured by eX Facial Intelligence
         </div>
       </div>
     </div>
