@@ -1,0 +1,13 @@
+{
+  "id": "phish-invoice-22",
+  "label": "phish",
+  "category": "invoice_fraud",
+  "senderName": "Accounts Payable Dept",
+  "senderAddress": "billing@partner-vendor-22.com",
+  "replyToAddress": "secret-cfo-22@gmail.com",
+  "subject": "Overdue Invoice #INV-8892 - Updated Wire Transfer Instructions",
+  "fullBodyText": "Please find attached our overdue invoice. Note that our banking details have changed. Please route all pending NEFT/RTGS payments to the updated account details immediately.",
+  "attachments": [
+    "Invoice_8892_Final.pdf.exe"
+  ]
+}

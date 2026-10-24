@@ -1,0 +1,78 @@
+{
+  "timestamp": 1792870608136,
+  "testedDomain": "example.com",
+  "endpoints": [
+    {
+      "id": "rdap",
+      "name": "RDAP Domain Registration",
+      "url": "https://rdap.org/domain/example.com",
+      "method": "GET",
+      "status": "online",
+      "httpStatus": 200,
+      "latency": 1841
+    },
+    {
+      "id": "dns",
+      "name": "Google Public DNS JSON",
+      "url": "https://dns.google/resolve?name=example.com&type=A",
+      "method": "GET",
+      "status": "online",
+      "httpStatus": 200,
+      "latency": 209
+    },
+    {
+      "id": "crt_sh",
+      "name": "Certificate Transparency (crt.sh)",
+      "url": "https://crt.sh/?q=example.com&output=json",
+      "method": "GET",
+      "status": "online",
+      "httpStatus": 200,
+      "latency": 1231
+    },
+    {
+      "id": "wayback",
+      "name": "Internet Archive Wayback",
+      "url": "https://archive.org/wayback/available?url=example.com",
+      "method": "GET",
+      "status": "online",
+      "httpStatus": 200,
+      "latency": 1009
+    },
+    {
+      "id": "ripestat",
+      "name": "RIPEstat Prefix Overview",
+      "url": "https://stat.ripe.net/data/prefix-overview/data.json?resource=93.184.215.14",
+      "method": "GET",
+      "status": "online",
+      "httpStatus": 200,
+      "latency": 1132
+    },
+    {
+      "id": "shodan_idb",
+      "name": "Shodan InternetDB",
+      "url": "https://internetdb.shodan.io/93.184.215.14",
+      "method": "GET",
+      "status": "error",
+      "httpStatus": 404,
+      "latency": 522
+    },
+    {
+      "id": "alienvault",
+      "name": "AlienVault OTX",
+      "url": "https://otx.alienvault.com/api/v1/indicators/domain/example.com/general",
+      "method": "GET",
+      "status": "online",
+      "httpStatus": 200,
+      "latency": 3463
+    },
+    {
+      "id": "tranco",
+      "name": "Tranco Top 1M Rank API",
+      "url": "https://tranco-list.eu/api/ranks/domain/example.com",
+      "method": "GET",
+      "status": "online",
+      "httpStatus": 200,
+      "latency": 2016
+    }
+  ]
+}

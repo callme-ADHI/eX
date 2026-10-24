@@ -1,0 +1,15 @@
+{
+  "id": "phish-bank-5",
+  "label": "phish",
+  "category": "credential_phishing",
+  "senderName": "HDFC NetBanking Alert",
+  "senderAddress": "support@sbi-security-verify-5.net",
+  "subject": "Urgent: Your Bank Account will be suspended within 24 hours - Update Pan Card",
+  "fullBodyText": "Dear Customer, Your NetBanking access has been locked due to pending KYC verification. Please click here to verify your Aadhaar and PAN card immediately to avoid penalty. Update your password and OTP now.",
+  "links": [
+    {
+      "text": "https://onlinesbi.sbi",
+      "href": "https://sbi-verification-5.xyz/login"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "12-empty-page",
+  "description": "Minimal empty page",
+  "tier": "T4",
+  "safety": {},
+  "privacy": {},
+  "hardening": {
+    "isHttps": true
+  }
+}

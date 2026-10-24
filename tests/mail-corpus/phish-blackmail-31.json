@@ -1,0 +1,15 @@
+{
+  "id": "phish-blackmail-31",
+  "label": "phish",
+  "category": "extortion",
+  "senderName": "Dark Web Security Researcher",
+  "senderAddress": "hacker-31@torbox-mail.com",
+  "subject": "I have recorded you. Your password was compromised.",
+  "fullBodyText": "I infected your computer with a pegasus trojan when you visited an adult website. I have access to your contacts and recorded footage. Send $1,500 in Bitcoin to my wallet within 48 hours or I will send it to everyone.",
+  "links": [
+    {
+      "text": "Check Bitcoin Wallet",
+      "href": "https://bitcoin-payment-31.xyz"
+    }
+  ]
+}

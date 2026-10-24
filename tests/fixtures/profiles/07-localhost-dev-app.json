@@ -1,0 +1,15 @@
+{
+  "name": "07-localhost-dev-app",
+  "description": "Local development web application",
+  "tier": "T4",
+  "safety": {},
+  "privacy": {
+    "trackerCount": 0,
+    "thirdPartyDomainCount": 0
+  },
+  "hardening": {
+    "isLocalhostOrPrivate": true,
+    "isHttps": false,
+    "cspPresent": false
+  }
+}

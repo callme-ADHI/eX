@@ -39,7 +39,7 @@ function resolveKey(keyName: string, apiKeys?: Record<string, string>): string |
   return null;
 }
 
-export type TaskType = "chat" | "mailBatch" | "mailDeep" | "sitePhish" | "vuln";
+export type TaskType = "chat" | "mailBatch" | "mailDeep" | "sitePhish" | "siteAnalyze" | "vuln";
 
 export async function callModel(task: TaskType, messages: Array<{ role: string; content: string }>): Promise<string> {
   const settings = await getSettings();

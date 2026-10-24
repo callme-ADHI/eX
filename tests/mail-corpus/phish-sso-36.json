@@ -1,0 +1,15 @@
+{
+  "id": "phish-sso-36",
+  "label": "phish",
+  "category": "credential_phishing",
+  "senderName": "Google Workspace Security Team",
+  "senderAddress": "no-reply@google-accounts-security-36.net",
+  "subject": "Critical security alert: Unauthorized sign-in attempt detected",
+  "fullBodyText": "Someone knows your password and attempted to sign into your account from Moscow, Russia. If this was not you, disconnect the attacker immediately by verifying your credentials below.",
+  "links": [
+    {
+      "text": "https://myaccount.google.com/security",
+      "href": "https://google-workspace-verify-36.cc/auth"
+    }
+  ]
+}

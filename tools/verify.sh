@@ -60,6 +60,7 @@ node tests/unit/tier0-mail.test.js
 node --test tests/unit/is-mail-page.test.js
 node --test tests/unit/assessment.test.js
 node --test tests/unit/permission-events.test.js
+node --test tests/unit/distribution.test.js
 node tests/vuln-app/run-scan-test.js
 
 echo ""

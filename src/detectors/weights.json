@@ -1,0 +1,43 @@
+{
+  "priors": {
+    "T0": -6.0,
+    "T1": -5.0,
+    "T2": -4.0,
+    "T3": -3.2,
+    "T4": -2.2
+  },
+  "features": {
+    "domain_age_under_30d": 2.0,
+    "domain_age_30_180d": 0.8,
+    "domain_age_over_5y": -1.0,
+    "wayback_over_3y": -0.6,
+    "no_wayback_history": 0.5,
+    "ip_address_host": 2.5,
+    "punycode_host": 2.5,
+    "brand_mismatch_domain": 2.8,
+    "lookalike_brand_domain": 2.5,
+    "cross_domain_credential_post": 3.0,
+    "insecure_form_action": 1.2,
+    "hidden_zero_size_iframes": 1.2,
+    "title_brand_mismatch": 2.0,
+    "urgency_language_score": 1.5,
+    "obfuscated_js": 0.8,
+    "paste_or_rightclick_blocked": 0.5,
+    "redirect_chain_deep": 0.8,
+    "click_hijack_detected": 1.6,
+    "click_hijack_extra": 0.4,
+    "invisible_overlay": 1.2,
+    "popup_from_click": 1.0,
+    "ad_network_navigation": 1.0,
+    "notification_prompt_on_load": 0.9,
+    "auto_download_executable": 1.2,
+    "fast_flux_dns": 0.6,
+    "risky_asn": 0.5,
+    "missing_spf_dmarc_on_brand": 0.6,
+    "offline_feed_hit": 6.0,
+    "safe_browsing_hit": 5.0,
+    "hsts_with_login": -0.3,
+    "strict_dmarc_spf": -0.4,
+    "cert_seen_over_1y": -0.4
+  }
+}

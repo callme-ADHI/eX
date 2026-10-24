@@ -1,0 +1,11 @@
+{
+  "id": "phish-quishing-18",
+  "label": "phish",
+  "category": "quishing",
+  "senderName": "IT Security Administration",
+  "senderAddress": "admin@corporate-sso-auth-18.com",
+  "subject": "Mandatory: Scan new MFA QR code to maintain email access",
+  "fullBodyText": "Our security policy requires you to switch to the new multi-factor authentication app. Scan the attached QR code with your mobile camera to keep your corporate inbox active.",
+  "hasQrCode": true,
+  "qrDecodedUrl": "https://auth-mfa-harvest-18.xyz/login"
+}

@@ -1,0 +1,19 @@
+{
+  "name": "09-saas-app",
+  "description": "SaaS dashboard with session cookies",
+  "tier": "T2",
+  "safety": {
+    "domain_age_over_5y": true,
+    "wayback_over_3y": true
+  },
+  "privacy": {
+    "trackerCount": 3,
+    "sessionReplayCount": 1
+  },
+  "hardening": {
+    "hasSessionCookies": true,
+    "isHttps": true,
+    "hstsPresent": true,
+    "xfoPresent": true
+  }
+}

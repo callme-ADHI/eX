@@ -1,0 +1,20 @@
+{
+  "id": "benign-news-36",
+  "label": "benign",
+  "category": "legit_marketing",
+  "senderName": "Substack Weekly Digest",
+  "senderAddress": "digest@substack.com",
+  "subject": "Week in Tech: Autonomous AI agents and modern web security (Issue #36)",
+  "fullBodyText": "Here is your weekly summary of top security news, machine learning breakthroughs, and open source development. Click to read the full issue online. Unsubscribe anytime.",
+  "links": [
+    {
+      "text": "Read full post",
+      "href": "https://newsletter.substack.com/p/issue-36"
+    },
+    {
+      "text": "Unsubscribe",
+      "href": "https://substack.com/unsubscribe"
+    }
+  ],
+  "senderHistoryCount": 6
+}

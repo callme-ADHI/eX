@@ -1,0 +1,19 @@
+{
+  "name": "04-new-domain-login",
+  "description": "Domain under 30 days hosting a login form",
+  "tier": "T4",
+  "safety": {
+    "domain_age_under_30d": true,
+    "no_wayback_history": true,
+    "urgency_language_score": 0.8
+  },
+  "privacy": {
+    "trackerCount": 1
+  },
+  "hardening": {
+    "hasPasswordOrPaymentForm": true,
+    "isHttps": true,
+    "cspPresent": false,
+    "hstsPresent": false
+  }
+}

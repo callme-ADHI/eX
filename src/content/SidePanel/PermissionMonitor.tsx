@@ -1,23 +1,29 @@
 /**
  * ─────────────────────────────────────────────────────────────────────────────
- *  eX — Permission & Access Monitor Component
+ *  eX — Site Access & Permissions Monitor (5 Core Capabilities)
  *  src/content/SidePanel/PermissionMonitor.tsx
  *
- *  Live indicators for browser permissions & active hardware streams:
- *  Camera, Mic, Geolocation, Screen, Notifications, Clipboard, Sensors,
- *  USB/Bluetooth, MIDI, Pop-ups, Downloads, and eX Biometric Engine.
+ *  Displays exactly 5 professional rows:
+ *    1. Camera (Webcam)
+ *    2. Microphone
+ *    3. Location (GPS)
+ *    4. Notifications
+ *    5. Automatic Downloads
+ *
+ *  Layout per row:
+ *    [Icon] [Name + status text] [State Chip: Allowed | Blocked | Ask]
+ *    [Activity: In use / Idle] [Segmented Control: Allow | Block]
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 
 export interface PermissionStateMap {
   camera?: string;
   microphone?: string;
   geolocation?: string;
   notifications?: string;
-  'clipboard-read'?: string;
-  midi?: string;
+  downloads?: string;
   [key: string]: string | undefined;
 }
 
@@ -26,17 +32,19 @@ export interface PermissionMonitorProps {
   cameraActive?: boolean;
   micActive?: boolean;
   exCameraActive?: boolean;
-  fetchCount?: number;
+  hostname?: string;
   onRefresh?: () => void;
+  onSetPermission?: (capability: string, setting: 'allow' | 'block' | 'ask') => void;
 }
 
-interface PermCardConfig {
+interface CapabilityRow {
   id: string;
-  title: string;
+  name: string;
   icon: string;
-  stateKey?: string;
+  description: string;
+  stateKey: string;
   activeNow?: boolean;
-  type: 'hardware' | 'privacy' | 'content';
+  lastUsedText?: string;
 }
 
 export default function PermissionMonitor({
@@ -44,198 +52,76 @@ export default function PermissionMonitor({
   cameraActive = false,
   micActive = false,
   exCameraActive = false,
+  hostname = '',
   onRefresh,
+  onSetPermission,
 }: PermissionMonitorProps) {
-  const cards: PermCardConfig[] = [
+  const [confirmAllowCap, setConfirmAllowCap] = useState<string | null>(null);
+
+  const rows: CapabilityRow[] = [
     {
       id: 'camera',
-      title: 'Webcam',
+      name: 'Camera',
       icon: '📷',
+      description: 'Webcam video input capture',
       stateKey: 'camera',
       activeNow: cameraActive,
-      type: 'hardware',
     },
     {
-      id: 'mic',
-      title: 'Microphone',
+      id: 'microphone',
+      name: 'Microphone',
       icon: '🎙️',
+      description: 'Audio input and speech recording',
       stateKey: 'microphone',
       activeNow: micActive,
-      type: 'hardware',
     },
     {
-      id: 'geo',
-      title: 'Location',
+      id: 'location',
+      name: 'Location',
       icon: '📍',
+      description: 'Precise GPS geolocation coordinates',
       stateKey: 'geolocation',
       activeNow: false,
-      type: 'privacy',
     },
     {
-      id: 'notif',
-      title: 'Notifications',
+      id: 'notifications',
+      name: 'Notifications',
       icon: '🔔',
+      description: 'System push notifications & banners',
       stateKey: 'notifications',
       activeNow: false,
-      type: 'content',
-    },
-    {
-      id: 'clip',
-      title: 'Clipboard',
-      icon: '📋',
-      stateKey: 'clipboard-read',
-      activeNow: false,
-      type: 'privacy',
-    },
-    {
-      id: 'screen',
-      title: 'Screen Capture',
-      icon: '🖥️',
-      activeNow: false,
-      type: 'hardware',
-    },
-    {
-      id: 'sensors',
-      title: 'Motion & Gyro',
-      icon: '🧭',
-      activeNow: false,
-      type: 'hardware',
-    },
-    {
-      id: 'usb_bt',
-      title: 'USB / Bluetooth',
-      icon: '🔌',
-      activeNow: false,
-      type: 'hardware',
-    },
-    {
-      id: 'midi',
-      title: 'MIDI Audio',
-      icon: '🎹',
-      stateKey: 'midi',
-      activeNow: false,
-      type: 'hardware',
-    },
-    {
-      id: 'popups',
-      title: 'Pop-up Windows',
-      icon: '🪟',
-      activeNow: false,
-      type: 'content',
     },
     {
       id: 'downloads',
-      title: 'Downloads',
+      name: 'Downloads',
       icon: '📥',
+      description: 'Automatic multiple file downloads',
+      stateKey: 'downloads',
       activeNow: false,
-      type: 'content',
-    },
-    {
-      id: 'ex_camera',
-      title: 'eX Face Engine',
-      icon: '🛡️',
-      activeNow: exCameraActive,
-      type: 'hardware',
     },
   ];
 
-  const getStatusBadge = (card: PermCardConfig) => {
-    if (card.activeNow) {
-      return (
-        <span style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '4px',
-          background: 'rgba(255, 59, 48, 0.2)',
-          border: '1px solid rgba(255, 59, 48, 0.6)',
-          color: '#ff453a',
-          padding: '2px 6px',
-          borderRadius: '4px',
-          fontSize: '9px',
-          fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '0.04em',
-        }}>
-          <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ff453a', animation: 'ex-pulse 1s infinite' }} />
-          ACTIVE NOW
-        </span>
-      );
+  const handleToggle = (id: string, targetSetting: 'allow' | 'block') => {
+    if (targetSetting === 'allow') {
+      setConfirmAllowCap(id);
+    } else {
+      if (onSetPermission) onSetPermission(id, 'block');
     }
-
-    const state = card.stateKey ? permissions[card.stateKey] : 'prompt';
-
-    if (state === 'granted') {
-      return (
-        <span style={{
-          background: 'rgba(52, 199, 89, 0.15)',
-          border: '1px solid rgba(52, 199, 89, 0.4)',
-          color: '#34c759',
-          padding: '2px 6px',
-          borderRadius: '4px',
-          fontSize: '9px',
-          fontWeight: 600,
-          textTransform: 'uppercase',
-        }}>
-          ALLOWED
-        </span>
-      );
-    }
-
-    if (state === 'denied') {
-      return (
-        <span style={{
-          background: 'rgba(255, 59, 48, 0.15)',
-          border: '1px solid rgba(255, 59, 48, 0.4)',
-          color: '#ff453a',
-          padding: '2px 6px',
-          borderRadius: '4px',
-          fontSize: '9px',
-          fontWeight: 600,
-          textTransform: 'uppercase',
-        }}>
-          BLOCKED
-        </span>
-      );
-    }
-
-    return (
-      <span style={{
-        background: 'rgba(255, 255, 255, 0.05)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        color: 'var(--text-muted, #888)',
-        padding: '2px 6px',
-        borderRadius: '4px',
-        fontSize: '9px',
-        fontWeight: 500,
-        textTransform: 'uppercase',
-      }}>
-        ASK (PROMPT)
-      </span>
-    );
   };
 
-  const activeCount = cards.filter((c) => c.activeNow).length;
+  const confirmAllow = () => {
+    if (confirmAllowCap && onSetPermission) {
+      onSetPermission(confirmAllowCap, 'allow');
+    }
+    setConfirmAllowCap(null);
+  };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted, #888)' }}>
-            Permission & Access Monitor
-          </span>
-          {activeCount > 0 && (
-            <span style={{
-              background: '#ff453a',
-              color: '#fff',
-              fontSize: '10px',
-              fontWeight: 800,
-              padding: '1px 5px',
-              borderRadius: '10px',
-            }}>
-              {activeCount} active
-            </span>
-          )}
-        </div>
+        <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted, #888)' }}>
+          Site Access & Permissions
+        </span>
         {onRefresh && (
           <button
             onClick={onRefresh}
@@ -254,33 +140,165 @@ export default function PermissionMonitor({
         )}
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: '6px',
-      }}>
-        {cards.map((c) => (
-          <div
-            key={c.id}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '7px 9px',
-              background: c.activeNow ? 'rgba(255, 59, 48, 0.06)' : 'rgba(255, 255, 255, 0.02)',
-              border: c.activeNow ? '1px solid rgba(255, 59, 48, 0.3)' : '1px solid var(--panel-border, rgba(255,255,255,0.07))',
-              borderRadius: '6px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-              <span style={{ fontSize: '13px' }}>{c.icon}</span>
-              <span style={{ fontSize: '11px', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {c.title}
-              </span>
-            </div>
-            {getStatusBadge(c)}
+      {/* Confirmation Modal */}
+      {confirmAllowCap && (
+        <div style={{
+          padding: '10px 12px',
+          background: 'rgba(255, 149, 0, 0.1)',
+          border: '1px solid #ff9500',
+          borderRadius: '6px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '6px',
+          fontSize: '11px',
+          color: '#fff',
+        }}>
+          <span>Are you sure you want to permanently <strong>ALLOW</strong> {confirmAllowCap} access for {hostname || 'this site'}?</span>
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+            <button
+              onClick={() => setConfirmAllowCap(null)}
+              style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '3px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmAllow}
+              style={{ background: '#34c759', border: 'none', color: '#000', padding: '3px 8px', borderRadius: '4px', fontWeight: 700, cursor: 'pointer', fontSize: '10px' }}
+            >
+              Confirm Allow
+            </button>
           </div>
-        ))}
+        </div>
+      )}
+
+      {/* 5 Rows */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+        {rows.map((row) => {
+          const rawState = permissions[row.stateKey] || 'ask';
+          const isAllowed = rawState === 'granted' || rawState === 'allow';
+          const isBlocked = rawState === 'denied' || rawState === 'block';
+          const isAsk = !isAllowed && !isBlocked;
+
+          return (
+            <div
+              key={row.id}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                minHeight: '44px',
+                padding: '6px 10px',
+                background: row.activeNow ? 'rgba(255, 59, 48, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                border: row.activeNow ? '1px solid rgba(255, 59, 48, 0.35)' : '1px solid var(--panel-border, rgba(255, 255, 255, 0.07))',
+                borderRadius: '6px',
+              }}
+            >
+              {/* Left Column: Icon + Name & Status */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                <span style={{ fontSize: '15px' }}>{row.icon}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: '#fff' }}>{row.name}</span>
+                    {row.activeNow ? (
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                        fontSize: '9px',
+                        fontWeight: 700,
+                        color: '#ff453a',
+                      }}>
+                        <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#ff453a' }} />
+                        In use
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: '9px', color: 'var(--text-muted, #777)' }}>Idle</span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: '9px', color: 'var(--text-muted, #888)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {row.description}
+                  </span>
+                </div>
+              </div>
+
+              {/* Right Column: State Chip + Segmented Control */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {/* State Chip */}
+                <span style={{
+                  fontSize: '9px',
+                  fontWeight: 600,
+                  padding: '2px 5px',
+                  borderRadius: '3px',
+                  textTransform: 'uppercase',
+                  background: isAllowed ? 'rgba(52, 199, 89, 0.15)' : isBlocked ? 'rgba(255, 59, 48, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                  color: isAllowed ? '#34c759' : isBlocked ? '#ff453a' : 'var(--text-muted, #888)',
+                  border: isAllowed ? '1px solid rgba(52, 199, 89, 0.4)' : isBlocked ? '1px solid rgba(255, 59, 48, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
+                }}>
+                  {isAllowed ? 'Allowed' : isBlocked ? 'Blocked' : 'Ask'}
+                </span>
+
+                {/* Segmented Control: Allow | Block */}
+                <div style={{
+                  display: 'flex',
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                }}>
+                  <button
+                    type="button"
+                    onClick={() => handleToggle(row.id, 'allow')}
+                    aria-pressed={isAllowed}
+                    style={{
+                      padding: '3px 7px',
+                      fontSize: '9px',
+                      fontWeight: 600,
+                      background: isAllowed ? '#34c759' : 'transparent',
+                      color: isAllowed ? '#000' : 'var(--text-secondary, #aaa)',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'background 0.15s ease',
+                    }}
+                  >
+                    Allow
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleToggle(row.id, 'block')}
+                    aria-pressed={isBlocked}
+                    style={{
+                      padding: '3px 7px',
+                      fontSize: '9px',
+                      fontWeight: 600,
+                      background: isBlocked ? '#ff3b30' : 'transparent',
+                      color: isBlocked ? '#fff' : 'var(--text-secondary, #aaa)',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'background 0.15s ease',
+                    }}
+                  >
+                    Block
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Transparency Note: eX Face Lock Camera */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '4px 6px',
+        fontSize: '9px',
+        color: 'var(--text-muted, #777)',
+      }}>
+        <span>eX Face Lock camera:</span>
+        <span style={{ color: exCameraActive ? '#00ffd2' : 'var(--text-muted, #777)' }}>
+          {exCameraActive ? '● In use (biometric verify)' : 'Idle'}
+        </span>
       </div>
     </div>
   );

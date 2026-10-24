@@ -1,0 +1,21 @@
+{
+  "name": "01-global-portal",
+  "description": "Ranked top portal, HSTS, moderate trackers",
+  "tier": "T0",
+  "safety": {
+    "domain_age_over_5y": true,
+    "wayback_over_3y": true,
+    "cert_seen_over_1y": true
+  },
+  "privacy": {
+    "trackerCount": 4,
+    "thirdPartyDomainCount": 6
+  },
+  "hardening": {
+    "isHttps": true,
+    "hstsPresent": true,
+    "cspPresent": true,
+    "xfoPresent": true,
+    "xctoPresent": true
+  }
+}

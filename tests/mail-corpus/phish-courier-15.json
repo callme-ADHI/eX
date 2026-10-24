@@ -1,0 +1,15 @@
+{
+  "id": "phish-courier-15",
+  "label": "phish",
+  "category": "delivery_scam",
+  "senderName": "India Post Express Courier",
+  "senderAddress": "tracking@indiapost-parcel-15.biz",
+  "subject": "Parcel delivery attempt failed - customs fee unpaid",
+  "fullBodyText": "Your international shipment could not be delivered due to an incorrect address and unpaid customs duty of Rs 149. Pay immediately to release your package within 24 hours.",
+  "links": [
+    {
+      "text": "https://indiapost.gov.in/track",
+      "href": "https://indiapost-pay-fee-15.work/pay"
+    }
+  ]
+}

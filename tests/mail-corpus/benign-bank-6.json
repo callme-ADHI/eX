@@ -1,0 +1,16 @@
+{
+  "id": "benign-bank-6",
+  "label": "benign",
+  "category": "legit_transactional",
+  "senderName": "HDFC Bank InstaAlerts",
+  "senderAddress": "alerts@hdfcbank.net",
+  "subject": "Alert: INR 1500.00 debited from HDFC Bank A/c **8231 via UPI",
+  "fullBodyText": "Dear Customer, INR 1500.00 has been debited from your account **8231 on 24-OCT-26 via UPI reference 429810298. If not done by you, call 18002026161 immediately.",
+  "links": [
+    {
+      "text": "https://www.hdfcbank.com",
+      "href": "https://www.hdfcbank.com"
+    }
+  ],
+  "senderHistoryCount": 12
+}

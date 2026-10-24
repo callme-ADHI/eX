@@ -1,0 +1,19 @@
+{
+  "name": "03-unranked-static-blog",
+  "description": "Unranked static blog with no security headers",
+  "tier": "T4",
+  "safety": {
+    "domain_age_30_180d": true
+  },
+  "privacy": {
+    "trackerCount": 0,
+    "thirdPartyDomainCount": 1
+  },
+  "hardening": {
+    "isHttps": true,
+    "cspPresent": false,
+    "hstsPresent": false,
+    "xfoPresent": false,
+    "xctoPresent": false
+  }
+}

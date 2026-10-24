@@ -1,0 +1,20 @@
+{
+  "id": "benign-github-10",
+  "label": "benign",
+  "category": "legit_transactional",
+  "senderName": "GitHub",
+  "senderAddress": "notifications@github.com",
+  "subject": "[callme-ADHI/eX] Pull Request #20: feat(cyber): enhance detection engine",
+  "fullBodyText": "Hey @callme-ADHI, a new pull request was opened on callme-ADHI/eX. You are receiving this because you are subscribed to this repository.",
+  "links": [
+    {
+      "text": "View Pull Request",
+      "href": "https://github.com/callme-ADHI/eX/pull/20"
+    },
+    {
+      "text": "Unsubscribe",
+      "href": "https://github.com/notifications/unsubscribe"
+    }
+  ],
+  "senderHistoryCount": 45
+}

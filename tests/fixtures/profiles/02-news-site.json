@@ -1,0 +1,19 @@
+{
+  "name": "02-news-site",
+  "description": "Major news site with 40 trackers and ads",
+  "tier": "T1",
+  "safety": {
+    "domain_age_over_5y": true,
+    "wayback_over_3y": true
+  },
+  "privacy": {
+    "trackerCount": 25,
+    "thirdPartyDomainCount": 30,
+    "adNetworkCount": 4
+  },
+  "hardening": {
+    "isHttps": true,
+    "hstsPresent": true,
+    "xfoPresent": true
+  }
+}

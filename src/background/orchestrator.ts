@@ -8,6 +8,7 @@ import { runPassiveChecks, type Finding } from '../detectors/vuln-passive';
 import { isAllowedTarget, runLocalActiveScan } from '../detectors/vuln-active';
 import { getSitePhishPrompt, getMailBatchPrompt, getMailDeepPrompt } from '../prompts/site-phish';
 import { runComprehensiveAssessment, type SiteAssessment } from '../detectors/assessment';
+import { runSitePipeline } from '../detectors/osint-pipeline.ts';
 
 export interface SiteVerdict {
   id: string;
@@ -167,10 +168,27 @@ export async function processSiteScan(
     await setTabState(tabId, 'findings', [...passiveFindings, ...activeOnly]);
   }
 
-  // Comprehensive ~68-parameter site assessment
+  // Multi-Stage Intelligence & Composite eX Score Pipeline
+  const clickStats = tabId ? (await getTabState(tabId, 'clickStats')) || {} : {};
+  const pipeline = await runSitePipeline(url, features, headers, clickStats, {
+    triggerDeep: (payload as any).triggerDeep,
+    aiCaller: async (prompt) => {
+      const res = await callModelJSON('siteAnalyze', [{ role: 'user', content: prompt }], 'siteAnalyze');
+      return res?.summary || res?.narrative || (typeof res === 'string' ? res : '');
+    },
+  });
+
   const assessment = runComprehensiveAssessment({ url, features, headers });
   if (tabId) {
-    await setTabState(tabId, 'siteAssessment', assessment);
+    await setTabState(tabId, 'siteAssessment', {
+      ...assessment,
+      exScore: pipeline.exScore,
+      summaryText: pipeline.assessment.summaryText,
+      stageText: pipeline.assessment.stageText,
+      isAiGenerated: pipeline.assessment.isAiGenerated,
+      facts: pipeline.assessment.facts,
+      clickStats,
+    });
   }
 
   return verdict;

@@ -1,34 +1,4 @@
 
-function initCyberScanners() {
-  if (isSystemPage()) return;
-
-  setTimeout(() => {
-    try {
-      const features = extractPageFeatures();
-      chrome.runtime.sendMessage({
-        type: 'SITE_SCAN',
-        payload: { url: window.location.href, features },
-      }).catch(() => {});
-    } catch (_) {}
-  }, 1000);
-
-  if (window.location.hostname === 'mail.google.com') {
-    startGmailObserver(
-      (rows) => {
-        chrome.runtime.sendMessage({
-          type: 'MAIL_BATCH',
-          payload: { rows },
-        }).catch(() => {});
-      },
-      (mail) => {
-        chrome.runtime.sendMessage({
-          type: 'MAIL_DEEP',
-          payload: { mail },
-        }).catch(() => {});
-      }
-    );
-  }
-}
 /**
  * ─────────────────────────────────────────────────────────────────────────────
  *  eX Content Script
@@ -40,9 +10,9 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import SidePanel from './SidePanel/SidePanel';
 import LockOverlay from './LockOverlay/LockOverlay';
-import lockStyles from './LockOverlay/LockOverlay.css?inline';
 import { extractPageFeatures } from './page-features';
 import { startGmailObserver } from './gmail/gmail-scanner';
+import { initClickGuard } from './click-guard';
 
 // ─── Content Script ──────────────────────────────────────────────────────────
 // Key design principles:
@@ -80,47 +50,24 @@ let shadowRootRef: ShadowRoot | null = null;
 // Inlined styles placeholder replaced at build time by inlineContentCssPlugin
 const INLINED_STYLES = '__EXAI_INLINED_STYLES__';
 
+function setStyles(el: HTMLElement, styles: Record<string, string>) {
+  for (const [k, v] of Object.entries(styles)) el.style.setProperty(k, v, 'important');
+}
+
 function applyHostClosedStyles(el: HTMLElement) {
-  el.style.setProperty('position',       'fixed',        'important');
-  el.style.setProperty('top',            '0',            'important');
-  el.style.setProperty('bottom',         '0',            'important');
-  el.style.setProperty('right',          '0',            'important');
-  el.style.setProperty('left',           'auto',         'important');
-  el.style.setProperty('width',          '0px',          'important');
-  el.style.setProperty('z-index',        '2147483647',   'important');
-  el.style.setProperty('pointer-events', 'none',         'important');
-  el.style.setProperty('background',     'transparent',  'important');
-  el.style.setProperty('overflow',       'visible',      'important');
+  setStyles(el, { position: 'fixed', top: '0', bottom: '0', right: '0', left: 'auto', width: '0px', 'z-index': '2147483647', 'pointer-events': 'none', background: 'transparent', overflow: 'visible' });
 }
 
 function applyHostOpenStyles(el: HTMLElement, width: number) {
-  el.style.setProperty('position',       'fixed',        'important');
-  el.style.setProperty('top',            '0',            'important');
-  el.style.setProperty('bottom',         '0',            'important');
-  el.style.setProperty('right',          '0',            'important');
-  el.style.setProperty('left',           'auto',         'important');
-  el.style.setProperty('width',          `${width}px`,   'important');
-  el.style.setProperty('z-index',        '2147483647',   'important');
-  el.style.setProperty('pointer-events', 'auto',         'important');
-  el.style.setProperty('background',     'transparent',  'important');
-  el.style.setProperty('overflow',       'visible',      'important');
+  setStyles(el, { position: 'fixed', top: '0', bottom: '0', right: '0', left: 'auto', width: `${width}px`, 'z-index': '2147483647', 'pointer-events': 'auto', background: 'transparent', overflow: 'visible' });
 }
 
 function applyHostSnipStyles(el: HTMLElement) {
-  el.style.setProperty('position',       'fixed',        'important');
-  el.style.setProperty('top',            '0',            'important');
-  el.style.setProperty('bottom',         '0',            'important');
-  el.style.setProperty('left',           '0',            'important');
-  el.style.setProperty('right',          '0',            'important');
-  el.style.setProperty('width',          '100vw',        'important');
-  el.style.setProperty('height',         '100vh',        'important');
-  el.style.setProperty('z-index',        '2147483647',   'important');
-  el.style.setProperty('pointer-events', 'auto',         'important');
-  el.style.setProperty('background',     'transparent',  'important');
-  el.style.setProperty('overflow',       'hidden',       'important');
+  setStyles(el, { position: 'fixed', top: '0', bottom: '0', left: '0', right: '0', width: '100vw', height: '100vh', 'z-index': '2147483647', 'pointer-events': 'auto', background: 'transparent', overflow: 'hidden' });
 }
 
 const LOCK_ROOT_ID = 'ex-lock-overlay-root';
+const lockStyles = '*{box-sizing:border-box;} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}';
 
 async function initLockOverlay(): Promise<void> {
   if (isSystemPage()) return;
@@ -288,9 +235,53 @@ function init() {
     bodyObserver.observe(document.body, { childList: true, subtree: false });
   }
 
+  function initCyberScanners() {
+    if (isSystemPage()) return;
+    setTimeout(() => {
+      try {
+        const features = extractPageFeatures();
+        chrome.runtime.sendMessage({ type: 'SITE_SCAN', payload: { url: window.location.href, features } }).catch(() => {});
+      } catch (_) {}
+    }, 1000);
+    if (window.location.hostname === 'mail.google.com') {
+      startGmailObserver(
+        (rows) => { chrome.runtime.sendMessage({ type: 'MAIL_BATCH', payload: { rows } }).catch(() => {}); },
+        (mail) => { chrome.runtime.sendMessage({ type: 'MAIL_DEEP', payload: { mail } }).catch(() => {}); }
+      );
+    }
+  }
+
   // ── Page metadata tracking ───────────────────────────────────────────────
   startTracker();
   initCyberScanners();
+  initClickGuard();
+}
+
+function showAdRedirectBanner(incidentCount: number) {
+  if (document.getElementById('ex-ad-redirect-banner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'ex-ad-redirect-banner';
+  banner.style.cssText = `
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    background: #1e0a0a; border: 1px solid #ff3b30; color: #fff;
+    padding: 10px 16px; border-radius: 8px; z-index: 2147483640;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6); display: flex; align-items: center; gap: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px;
+  `;
+  banner.innerHTML = `
+    <span style="font-size:16px;">⚠️</span>
+    <span><strong>Click-Hijack Warning:</strong> This site opens ads or redirects when you click (${incidentCount} detected).</span>
+    <button id="ex-block-popups-btn" style="background:#ff3b30;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;font-size:11px;">Block Pop-ups</button>
+    <button id="ex-dismiss-banner-btn" style="background:transparent;border:none;color:#aaa;cursor:pointer;font-size:14px;padding:2px 6px;">✕</button>
+  `;
+  (document.body || document.documentElement).appendChild(banner);
+  document.getElementById('ex-block-popups-btn')?.addEventListener('click', () => {
+    chrome.runtime.sendMessage({ type: 'BLOCK_SITE_POPUPS', hostname: window.location.hostname });
+    banner.remove();
+  });
+  document.getElementById('ex-dismiss-banner-btn')?.addEventListener('click', () => {
+    banner.remove();
+  });
 }
 
 // ─── API Usage and Metadata Reporting ────────────────────────────────────────
@@ -382,14 +373,21 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   }
 
   if (msg.type === 'QUERY_ACTIVE_MEDIA') {
-    navigator.mediaDevices.enumerateDevices()
+    navigator.mediaDevices?.enumerateDevices?.()
       .then(devices => {
         sendResponse({
           cameraActive: devices.some(d => d.kind === 'videoinput' && d.label !== ''),
           micActive:    devices.some(d => d.kind === 'audioinput' && d.label !== ''),
         });
       })
-      .catch(() => sendResponse({ cameraActive: false, micActive: false }));
+      .catch(() => {
+        sendResponse({ cameraActive: false, micActive: false });
+      });
     return true;
+  }
+
+  if (msg.type === 'SHOW_CLICK_HIJACK_BANNER') {
+    showAdRedirectBanner(msg.incidentCount || 1);
+    return;
   }
 });

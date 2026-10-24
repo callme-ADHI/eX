@@ -1,0 +1,18 @@
+{
+  "name": "05-brand-lookalike-phish",
+  "description": "Brand lookalike phishing page claiming authority",
+  "tier": "T4",
+  "safety": {
+    "lookalike_brand_domain": true,
+    "brand_mismatch_domain": true,
+    "cross_domain_credential_post": true,
+    "urgency_language_score": 1
+  },
+  "privacy": {
+    "trackerCount": 0
+  },
+  "hardening": {
+    "hasPasswordOrPaymentForm": true,
+    "isHttps": true
+  }
+}

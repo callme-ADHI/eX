@@ -1,0 +1,16 @@
+{
+  "id": "benign-order-28",
+  "label": "benign",
+  "category": "legit_transactional",
+  "senderName": "Amazon.in Order Confirmation",
+  "senderAddress": "auto-confirm@amazon.in",
+  "subject": "Your Amazon.in order #-9899570 has been shipped!",
+  "fullBodyText": "Hi Boss, your package containing wireless earbuds will arrive tomorrow by 8 PM. Track your package on your Amazon account or view your invoice.",
+  "links": [
+    {
+      "text": "Track your package",
+      "href": "https://www.amazon.in/progress-tracker/package/ref=xyz?orderId=-9899570"
+    }
+  ],
+  "senderHistoryCount": 30
+}

@@ -1,0 +1,21 @@
+{
+  "name": "10-forum-fingerprinting",
+  "description": "Public forum running canvas and audio fingerprinting",
+  "tier": "T3",
+  "safety": {
+    "domain_age_over_5y": true
+  },
+  "privacy": {
+    "trackerCount": 5,
+    "fingerprintingTechniques": [
+      "canvas",
+      "webgl",
+      "audio"
+    ],
+    "thirdPartyCookieCount": 4
+  },
+  "hardening": {
+    "isHttps": true,
+    "hstsPresent": true
+  }
+}

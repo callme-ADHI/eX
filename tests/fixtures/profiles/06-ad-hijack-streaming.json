@@ -1,0 +1,18 @@
+{
+  "name": "06-ad-hijack-streaming",
+  "description": "Streaming site with aggressive click-hijack and popunders",
+  "tier": "T3",
+  "safety": {
+    "click_hijack_count": 3,
+    "invisible_overlay": true,
+    "popup_from_click": true,
+    "ad_network_navigation": true
+  },
+  "privacy": {
+    "trackerCount": 8,
+    "adNetworkCount": 6
+  },
+  "hardening": {
+    "isHttps": true
+  }
+}

@@ -3,5 +3,6 @@
   "mailBatch": { "model": "nvidia/nemotron-3.5-bolt-e4b",          "key": "KEY_2", "temperature": 0.0, "max_tokens": 1200 },
   "mailDeep":  { "model": "nvidia/nemotron-3.5-lightning-30b-a3b", "key": "KEY_2", "temperature": 0.0, "max_tokens": 600 },
   "sitePhish": { "model": "nvidia/nemotron-3.5-bolt-e4b",          "key": "KEY_3", "temperature": 0.0, "max_tokens": 400 },
+  "siteAnalyze": { "model": "nvidia/nemotron-3.5-lightning-30b-a3b", "key": "KEY_3", "temperature": 0.2, "max_tokens": 800 },
   "vuln":      { "model": "nvidia/nemotron-3.5-lightning-30b-a3b", "key": "KEY_3", "temperature": 0.1, "max_tokens": 1200 }
 }

@@ -1,0 +1,18 @@
+{
+  "name": "11-cdn-heavy-shop",
+  "description": "E-commerce store with many CDN subresources",
+  "tier": "T2",
+  "safety": {
+    "domain_age_over_5y": true
+  },
+  "privacy": {
+    "trackerCount": 6,
+    "thirdPartyDomainCount": 18
+  },
+  "hardening": {
+    "hasPasswordOrPaymentForm": true,
+    "isHttps": true,
+    "hstsPresent": true,
+    "sriMissingCount": 3
+  }
+}

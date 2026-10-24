@@ -1,0 +1,15 @@
+{
+  "id": "phish-upi-7",
+  "label": "phish",
+  "category": "payment_fraud",
+  "senderName": "Paytm Cashback Department",
+  "senderAddress": "cashback-claims@reward-paytm-7.club",
+  "subject": "Congratulations! You have received a cashback reward of Rs 4,999 on UPI",
+  "fullBodyText": "Dear user, you have won Rs 4,999 cashback in your Paytm Wallet. Click the link to claim your reward instantly. Enter your UPI PIN on the screen to confirm receipt.",
+  "links": [
+    {
+      "text": "Claim UPI Reward",
+      "href": "https://claim-upi-cashback-7.top/verify"
+    }
+  ]
+}

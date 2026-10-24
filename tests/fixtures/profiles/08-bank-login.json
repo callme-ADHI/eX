@@ -1,0 +1,23 @@
+{
+  "name": "08-bank-login",
+  "description": "Banking portal with strict headers and high reputation",
+  "tier": "T1",
+  "safety": {
+    "domain_age_over_5y": true,
+    "cert_seen_over_1y": true,
+    "hsts_with_login": true,
+    "strict_dmarc_spf": true
+  },
+  "privacy": {
+    "trackerCount": 1,
+    "thirdPartyDomainCount": 2
+  },
+  "hardening": {
+    "hasPasswordOrPaymentForm": true,
+    "isHttps": true,
+    "hstsPresent": true,
+    "cspPresent": true,
+    "xfoPresent": true,
+    "xctoPresent": true
+  }
+}

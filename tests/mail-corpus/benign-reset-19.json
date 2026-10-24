@@ -1,0 +1,16 @@
+{
+  "id": "benign-reset-19",
+  "label": "benign",
+  "category": "legit_transactional",
+  "senderName": "Spotify Accounts",
+  "senderAddress": "no-reply@spotify.com",
+  "subject": "Reset your password",
+  "fullBodyText": "Hello! We received a request to reset your password for your Spotify account. Click the button below to choose a new password. If you did not make this request, you can safely ignore this email.",
+  "links": [
+    {
+      "text": "Reset Password",
+      "href": "https://accounts.spotify.com/password-reset?token=xyz19"
+    }
+  ],
+  "senderHistoryCount": 8
+}

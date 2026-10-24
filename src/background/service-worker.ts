@@ -30,7 +30,7 @@ import { registerEditorFill } from './autofill/editorFill';
 import { registerJsonRequest } from './ai/jsonRequest';
 import { loadSettings } from './ai/settings';
 import { callModel, callModelJSON } from './router';
-import { getSettings, patchSettings, getTodayUsage } from './state';
+import { getSettings, patchSettings, getTodayUsage, getTabState, setTabState } from './state';
 import { initFaceAuthEngine, verifyFace } from './faceAuthEngine';
 import { processSiteScan, processMailBatch, processMailDeep, runActiveScanForTab, getSiteVerdictForTab, getFindingsForTab, getMailSummaryForTab, getSiteAssessmentForTab } from './orchestrator';
 
@@ -238,6 +238,46 @@ async function handleMessage(msg: any, sender: chrome.runtime.MessageSender): Pr
     case 'GET_SITE_ASSESSMENT':
       return getSiteAssessmentForTab((msg as any).tabId || sender.tab?.id);
 
+    case 'RECORD_TRUSTED_CLICK': {
+      const tabId = sender.tab?.id || (msg as any).tabId;
+      if (tabId) {
+        const stats = (await getTabState(tabId, 'clickStats')) || { physicalClicks: 0, popupsAttempted: 0, popupsBlocked: 0, overlaysDetected: 0 };
+        stats.physicalClicks = (stats.physicalClicks || 0) + 1;
+        await setTabState(tabId, 'clickStats', stats);
+      }
+      return { ok: true };
+    }
+
+    case 'OVERLAY_DETECTED': {
+      const tabId = sender.tab?.id || (msg as any).tabId;
+      if (tabId) {
+        const stats = (await getTabState(tabId, 'clickStats')) || { physicalClicks: 0, popupsAttempted: 0, popupsBlocked: 0, overlaysDetected: 0 };
+        stats.overlaysDetected = (stats.overlaysDetected || 0) + 1;
+        await setTabState(tabId, 'clickStats', stats);
+      }
+      return { ok: true };
+    }
+
+    case 'BLOCK_SITE_POPUPS': {
+      const hostname = (msg as any).hostname;
+      if (hostname) {
+        const cur = await getSettings();
+        const list = new Set((cur as any).blockedPopupSites || []);
+        list.add(hostname);
+        await patchSettings({ blockedPopupSites: Array.from(list) } as any);
+      }
+      return { ok: true };
+    }
+
+    case 'RUN_DEEP_CHECK': {
+      const tabId = (msg as any).tabId || sender.tab?.id;
+      const url = (msg as any).url;
+      if (tabId && url) {
+        return processSiteScan({ url, features: {}, triggerDeep: true } as any, tabId);
+      }
+      return { ok: false };
+    }
+
     case 'TRUST_SITE': {
       const hostname = (msg as any).hostname;
       const cur = await getSettings();
@@ -251,10 +291,29 @@ async function handleMessage(msg: any, sender: chrome.runtime.MessageSender): Pr
       return { ok: true };
     }
 
-
     default:
       throw new Error(`Unknown message type: ${(msg as any).type}`);
   }
+}
+
+// ─── Per-Tab Navigation Lifecycle ─────────────────────────────────────────────
+const tabNavMap = new Map<number, number>();
+
+if (typeof chrome !== 'undefined' && chrome.webNavigation) {
+  const onNav = async (details: chrome.webNavigation.WebNavigationTransitionCallbackDetails) => {
+    if (details.frameId === 0 && details.tabId) {
+      const nextNav = (tabNavMap.get(details.tabId) || 0) + 1;
+      tabNavMap.set(details.tabId, nextNav);
+      await setTabState(details.tabId, 'navId', nextNav);
+      await setTabState(details.tabId, 'clickStats', { physicalClicks: 0, popupsAttempted: 0, popupsBlocked: 0, overlaysDetected: 0 });
+      if (chrome.action) {
+        chrome.action.setBadgeText({ tabId: details.tabId, text: '' });
+      }
+    }
+  };
+
+  chrome.webNavigation.onCommitted.addListener(onNav);
+  chrome.webNavigation.onHistoryStateUpdated.addListener(onNav);
 }
 
 // ─── Keyboard Commands Listener ───────────────────────────────────────────────
@@ -262,18 +321,14 @@ chrome.commands.onCommand.addListener(async (command) => {
   if (command === 'toggle-wheel') {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.id) {
-      chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_HUD' }).catch(() => {
-        // Ignore error if content script is not loaded
-      });
+      chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_HUD' }).catch(() => {});
     }
   }
 
   if (command === 'start-snip') {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.id) {
-      chrome.tabs.sendMessage(tab.id, { type: 'START_SNIP' }).catch(() => {
-        // Ignore error if content script is not loaded
-      });
+      chrome.tabs.sendMessage(tab.id, { type: 'START_SNIP' }).catch(() => {});
     }
   }
 });

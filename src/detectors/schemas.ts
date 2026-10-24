@@ -114,11 +114,17 @@ export function validateVulnExplain(v: any): ValidationResult {
   return ok(v);
 }
 
+export function validateSiteAnalyze(v: any): ValidationResult {
+  if (!v || typeof v !== "object") return err("Expected object");
+  return ok(v);
+}
+
 export const SCHEMAS: Record<string, (v: any) => ValidationResult> = {
   verdict: validateVerdict,
   mailBatch: validateMailBatch,
   mailDeep: validateMailDeep,
   sitePhish: validateSitePhish,
+  siteAnalyze: validateSiteAnalyze,
   vulnExplain: validateVulnExplain,
 };
 
